@@ -65,10 +65,27 @@ lib/                    Lesson parser, Markdown rendering, Python runner client,
 public/pyodide-worker.js   Web worker that runs Python
 public/pyodide-harness.py  Grading harness (runs code, captures output and charts, runs tests)
 public/data/            Datasets lessons can open as "data/<file>"
-scripts/                Content validator and dataset generator
+notebooks/              Colab notebooks for the PyTorch lessons (built from notebooks/src/)
+scripts/                Content validator, dataset generators, notebook builder
 ```
 
 Lesson format: see [`content/README.md`](content/README.md).
+
+## Colab notebooks
+
+PyTorch doesn't run in the browser, so the deep learning lessons from Phase 7 lesson 6 onwards come
+with Google Colab notebooks. Each lesson's **Open in Colab** button opens
+`notebooks/<name>.ipynb` from GitHub (the `main` branch by default; set `NEXT_PUBLIC_REPO_BRANCH` to
+change it). The notebooks load the course datasets from the `main` branch on GitHub (`DATA_URL` at the
+top of each notebook).
+
+Notebooks are generated from plain Python sources in `notebooks/src/` ("percent" format: `# %%`
+starts a code cell, `# %% [markdown]` a Markdown cell). Edit the source, then rebuild:
+
+```bash
+npm run notebooks                       # rebuilds notebooks/*.ipynb
+python notebooks/src/07-06-pytorch-basics.py   # run a source directly (needs PyTorch)
+```
 
 ## Accounts and cloud progress (optional)
 

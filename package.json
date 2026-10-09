@@ -10,7 +10,8 @@
     "typecheck": "next typegen && tsc --noEmit",
     "validate": "python3 scripts/validate_content.py",
     "data": "python3 scripts/generate_datasets.py && python3 scripts/generate_model_predictions.py",
-    "db:migrate": "node scripts/migrate.mjs"
+    "db:migrate": "node scripts/migrate.mjs",
+    "notebooks": "python3 scripts/build_notebooks.py"
   },
   "dependencies": {
     "@codemirror/lang-python": "6.2.1",
