@@ -56,6 +56,7 @@ Settings are read from environment variables, or from a `.env` file (copy `.env.
 | `MODEL_FILE` | `models/match_model.joblib` | The trained model bundle |
 | `API_KEY_HASHES` | the hash of `dev-key` | Comma-separated SHA-256 hashes of valid keys |
 | `MAX_BATCH_SIZE` | `100` | Largest batch accepted by `/predictions/batch` |
+| `ROOT_PATH` | empty | Path prefix the API is served under, e.g. `/match-api` when deployed alongside the course site on Vercel |
 
 Create a real key and its hash:
 

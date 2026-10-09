@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     # The default accepts the key "dev-key" so the app works out of the box; set your own in production.
     api_key_hashes: str = Field(default="7e9f8fd111802be56c379d597842e29b2cebd35ff2133d431a49fa556a18704e")
     max_batch_size: int = 100
+    # The path prefix the app is served under, e.g. "/match-api" behind the course site on Vercel.
+    # Leave it empty when the API is served from the root, as it is locally and in Docker.
+    root_path: str = ""
 
     @property
     def api_key_hash_set(self) -> set[str]:

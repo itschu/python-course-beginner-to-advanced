@@ -31,7 +31,7 @@ def create_app(model: GoalModel | None = None, create_tables: bool = True) -> Fa
         logger.info("shutting down")
 
     settings = get_settings()
-    app = FastAPI(title=settings.app_name, version="1.0.0", lifespan=lifespan)
+    app = FastAPI(title=settings.app_name, version="1.0.0", lifespan=lifespan, root_path=settings.root_path)
 
     app.add_middleware(
         CORSMiddleware,
