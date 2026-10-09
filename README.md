@@ -40,7 +40,7 @@ Open http://localhost:3000. Progress is saved in your browser; see below to add 
 
 Every code example and exercise is executed by a validator that uses the same grading harness as the
 browser. For each exercise, the solution must pass all tests and the starter code must fail at least
-one.
+one. Code that prints a warning (including deprecation warnings) also fails, because learners would see it.
 
 ```bash
 python3 -m venv .venv
@@ -49,7 +49,9 @@ python3 -m venv .venv
 .venv/bin/python scripts/validate_content.py --phase python-foundations
 ```
 
-The datasets in `public/data/` are synthetic and reproducible: `python scripts/generate_datasets.py`.
+The datasets in `public/data/` are synthetic and reproducible: `npm run data` runs
+`scripts/generate_datasets.py` and then `scripts/generate_model_predictions.py` (the Phase 6 goal-model
+predictions, which depend on `matches.csv`).
 
 ## Project structure
 

@@ -47,6 +47,14 @@ export const datasets: Dataset[] = [
     synthetic: true,
   },
   {
+    file: "poisson_predictions.csv",
+    title: "Walk-forward goal-model predictions",
+    description:
+      "Home/draw/away probabilities and expected goals from the Phase 6 Poisson goal model for the 2023-24 and 2024-25 seasons, each predicted using only earlier matches. Saves refitting the model in the browser.",
+    columns: "Season, Date, HomeTeam, AwayTeam, FTHG, FTAG, FTR, AvgH, AvgD, AvgA, LamH, LamA, pH, pD, pA",
+    synthetic: true,
+  },
+  {
     file: "reviews.csv",
     title: "Product reviews",
     description: "Short product reviews labelled positive or negative. For text classification.",

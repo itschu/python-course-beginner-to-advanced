@@ -9,7 +9,7 @@
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
     "validate": "python3 scripts/validate_content.py",
-    "data": "python3 scripts/generate_datasets.py",
+    "data": "python3 scripts/generate_datasets.py && python3 scripts/generate_model_predictions.py",
     "db:migrate": "node scripts/migrate.mjs"
   },
   "dependencies": {

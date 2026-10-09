@@ -23,7 +23,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random
 
 pipe = make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000))
 grid = {
-    "logisticregression__C": [0.01, 0.1, 1, 10, 100],
+    "logisticregression__C": [0.01, 0.1, 1, 10],
     "logisticregression__l1_ratio": [0, 1],
     "logisticregression__solver": ["saga"],
 }

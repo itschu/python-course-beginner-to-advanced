@@ -103,7 +103,7 @@ def make_matches() -> pd.DataFrame:
 
 
 def make_fx() -> pd.DataFrame:
-    rng = np.random.default_rng(7)
+    rng = np.random.default_rng(9)
     dates = pd.bdate_range("2015-01-01", "2024-12-31")
     n = len(dates)
     vol = np.empty(n)

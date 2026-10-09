@@ -85,6 +85,9 @@ def parse_frontmatter(text: str, path: Path) -> tuple[dict, str, int]:
         value = value.strip()
         if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
             value = value[1:-1]
+        elif ": " in value or " #" in value:
+            # The site parses frontmatter as YAML, where these break an unquoted value.
+            raise ParseError(f"{path}: put the {key.strip()} in double quotes (it contains ': ' or ' #')")
         meta[key.strip()] = value
     body_start_line = text[: end + 5].count("\n") + 1
     return meta, text[end + 5 :], body_start_line
@@ -272,6 +275,14 @@ def run(harness: dict, code: str, tests: str | None = None) -> tuple[dict, str]:
         and "asyncio" not in (w.filename or "")
     })
     result["deprecations"] = deprecations
+    # Learners see every other warning in the output panel too, so flag those as well.
+    result["warnings"] = sorted({
+        f"{w.category.__name__}: {str(w.message).splitlines()[0][:200]}"
+        for w in caught
+        if not issubclass(w.category, (FutureWarning, DeprecationWarning, PendingDeprecationWarning))
+        and "asyncio" not in (w.filename or "")
+        and "non-interactive" not in str(w.message)
+    })
     return result, buffer.getvalue()
 
 
@@ -341,11 +352,16 @@ def main() -> int:
                     errors.append(f"{rel}:{line}: code cell {what}\n--- output ---\n{out[-1500:]}")
                 for d in result["deprecations"]:
                     errors.append(f"{rel}:{line}: code cell uses a deprecated API: {d}")
+                if "expect-warning" not in info:
+                    for w in result["warnings"]:
+                        errors.append(f"{rel}:{line}: code cell shows learners a warning: {w}")
             for ex in lesson.exercises:
                 counts["exercises"] += 1
                 result, out = run(harness, ex.solution, ex.tests)
                 for d in result["deprecations"]:
                     errors.append(f"{rel}:{ex.line}: exercise {ex.id} uses a deprecated API: {d}")
+                for w in result["warnings"]:
+                    errors.append(f"{rel}:{ex.line}: exercise {ex.id}: solution shows learners a warning: {w}")
                 if not result["ok"]:
                     errors.append(f"{rel}:{ex.line}: exercise {ex.id}: solution raised:\n{result['error']}")
                 elif not result["tests"] or not all(t["passed"] for t in result["tests"]):

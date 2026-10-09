@@ -84,7 +84,7 @@ plt.show()
 
 When the **probabilities themselves** drive decisions, as in betting, insurance pricing, credit risk or medical risk scores, you need metrics that judge probabilities directly:
 
-- **Log loss** (from Phase 4): the average of $-\ln(\text{probability given to what happened})$. It heavily punishes confident mistakes. Lower is better.
+- **Log loss** (from Phase 4): the average of $-\ln p$, where $p$ is the probability given to what happened. It heavily punishes confident mistakes. Lower is better.
 - **Brier score**: the mean squared difference between the predicted probability and the outcome (0 or 1). Lower is better, and it's gentler on confident mistakes than log loss.
 
 ```python

@@ -53,7 +53,7 @@ export function LessonComplete({
             {completed ? "Mark as not done" : "Mark as complete"}
           </button>
           {nextHref && (
-            <Link href={nextHref} className="btn btn-primary">
+            <Link href={nextHref} className="btn btn-primary max-w-full text-left whitespace-normal">
               Next: {nextTitle} →
             </Link>
           )}

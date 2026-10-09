@@ -75,7 +75,7 @@ export function Quiz({ lessonKey, id, title, questions }: QuizProps) {
               <div className="flex gap-2">
                 <span className="font-semibold text-violet-700 dark:text-violet-300">{qi + 1}.</span>
                 <div
-                  className="prose prose-zinc dark:prose-invert prose-p:my-0 max-w-none text-[15px] font-medium"
+                  className="prose prose-zinc dark:prose-invert prose-p:my-0 max-w-none min-w-0 flex-1 text-[15px] font-medium"
                   dangerouslySetInnerHTML={{ __html: q.promptHtml }}
                 />
               </div>
@@ -128,7 +128,7 @@ export function Quiz({ lessonKey, id, title, questions }: QuizProps) {
                     <XCircle className="mt-0.5 size-4 shrink-0" aria-hidden />
                   )}
                   <div
-                    className="prose prose-sm dark:prose-invert prose-p:my-0 max-w-none text-inherit"
+                    className="prose prose-sm dark:prose-invert prose-p:my-0 max-w-none min-w-0 text-inherit"
                     dangerouslySetInnerHTML={{ __html: q.explanationHtml || (correct ? "Correct." : "Not quite.") }}
                   />
                 </div>

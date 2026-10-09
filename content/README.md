@@ -35,6 +35,10 @@ print("Every python block is an editable, runnable cell")
 ```python expect-error
 print(undefined)   # runnable; the validator expects it to raise
 ```
+
+```python expect-warning
+# runnable; the validator allows it to print a warning (all other warnings fail validation)
+```
 ````
 
 Each cell runs in a fresh namespace, so examples must be self-contained. Files in

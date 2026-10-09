@@ -243,7 +243,7 @@ def test_unknown_team_skipped():
 
 ## Step 4: Score the probabilities
 
-**Log loss** for multi-class outcomes is the average of $-\ln(\text{probability given to what actually happened})$. Lower is better. A forecaster who always said "one third each" scores $\ln 3 \approx 1.099$.
+**Log loss** for multi-class outcomes is the average of $-\ln p$, where $p$ is the probability the forecast gave to what actually happened. Lower is better. A forecaster who always said "one third each" scores $\ln 3 \approx 1.099$.
 
 :::exercise fm-score Log loss and benchmarks
 Write:
