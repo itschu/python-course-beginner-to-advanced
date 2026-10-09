@@ -12,3 +12,4 @@ starlette==1.0.*
 httpx==0.28.*
 sqlalchemy==2.0.*
 joblib
+pytest==9.0.*

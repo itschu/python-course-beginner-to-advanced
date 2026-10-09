@@ -248,14 +248,14 @@ def run(harness: dict, code: str, tests: str | None = None) -> tuple[dict, str]:
     signal.signal(signal.SIGALRM, on_alarm)
     signal.alarm(TIMEOUT_SECONDS)
     buffer = io.StringIO()
-    real_stdout = sys.stdout
-    sys.stdout = buffer
+    real_stdout, real_stderr = sys.stdout, sys.stderr
+    sys.stdout = sys.stderr = buffer
     try:
         result = json.loads(asyncio.run(harness["_pp_run"](code, tests)))
     except Timeout:
         result = {"ok": False, "error": f"timed out after {TIMEOUT_SECONDS}s", "tests": None}
     finally:
-        sys.stdout = real_stdout
+        sys.stdout, sys.stderr = real_stdout, real_stderr
         signal.alarm(0)
     return result, buffer.getvalue()
 
