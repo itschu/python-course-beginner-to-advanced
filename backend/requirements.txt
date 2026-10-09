@@ -1,0 +1,16 @@
+# Runtime
+fastapi==0.136.*
+uvicorn[standard]==0.38.*
+pydantic==2.12.*
+pydantic-settings==2.15.*
+sqlalchemy==2.0.*
+numpy==2.4.*
+pandas==3.0.*
+scipy==1.18.*
+scikit-learn==1.8.*
+joblib==1.6.*
+
+# Tests
+httpx==0.28.*
+pytest==9.0.*
+anyio==4.*

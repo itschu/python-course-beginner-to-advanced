@@ -43,6 +43,7 @@ DIRECTIVE_RE = re.compile(r"^:::(\w+)\s*(.*)$")
 CALLOUTS = {"note", "tip", "warning", "colab", "info"}
 KINDS = {"lesson", "project", "checkpoint"}
 TIMEOUT_SECONDS = 180
+STARTER_SECONDS = 5
 
 
 @dataclass
@@ -244,6 +245,13 @@ def sandbox_like_browser() -> None:
     threading.Thread.start = no_threads  # type: ignore[method-assign]
     socket.socket.connect = no_network  # type: ignore[method-assign]
 
+    # Pyodide is built without OpenSSL, so hashlib lacks the functions that need it.
+    import hashlib
+
+    for name in ("pbkdf2_hmac", "scrypt"):
+        if hasattr(hashlib, name):
+            delattr(hashlib, name)
+
 
 class Timeout(Exception):
     pass
@@ -292,12 +300,34 @@ def summarize_tests(tests: list[dict] | None) -> str:
     return "; ".join(f"{t['name']}: {'ok' if t['passed'] else t['error']}" for t in tests)
 
 
+def export_jobs(lessons: list[Lesson], path: Path, errors: list[str]) -> int:
+    """Jobs for checking the content in real Pyodide (see scripts/check_pyodide.mjs)."""
+    if errors:
+        print("\n".join(errors), file=sys.stderr)
+        return 1
+    jobs = []
+    for lesson in lessons:
+        rel = str(lesson.path.relative_to(ROOT))
+        for line, code, info in lesson.code_blocks:
+            if "static" not in info:
+                jobs.append({"where": f"{rel}:{line}", "code": code, "tests": None,
+                             "expect": "error" if "expect-error" in info else "ok"})
+        for ex in lesson.exercises:
+            jobs.append({"where": f"{rel}:{ex.line} {ex.id} (solution)", "code": ex.solution, "tests": ex.tests, "expect": "pass"})
+            jobs.append({"where": f"{rel}:{ex.line} {ex.id} (starter)", "code": ex.starter, "tests": ex.tests, "expect": "fail"})
+    path.write_text(json.dumps(jobs))
+    print(f"wrote {len(jobs)} jobs to {path}", file=sys.stderr)
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--phase")
     parser.add_argument("-k", dest="keyword")
     parser.add_argument("--verbose", action="store_true")
     parser.add_argument("--no-run", action="store_true", help="only check syntax")
+    parser.add_argument("--export-jobs", metavar="PATH",
+                        help="write every runnable cell and exercise to a JSON file for scripts/check_pyodide.mjs, then exit")
     args = parser.parse_args()
 
     slugs = phase_slugs()
@@ -330,6 +360,9 @@ def main() -> int:
                 lessons.append(parse_lesson(path))
             except ParseError as exc:
                 errors.append(str(exc))
+
+    if args.export_jobs:
+        return export_jobs(lessons, Path(args.export_jobs), errors)
 
     counts = {"lessons": len(lessons), "cells": 0, "exercises": 0}
     if not args.no_run:
@@ -366,9 +399,14 @@ def main() -> int:
                     errors.append(f"{rel}:{ex.line}: exercise {ex.id}: solution raised:\n{result['error']}")
                 elif not result["tests"] or not all(t["passed"] for t in result["tests"]):
                     errors.append(f"{rel}:{ex.line}: exercise {ex.id}: solution fails tests: {summarize_tests(result['tests'])}")
+                t0 = time.perf_counter()
                 result, _ = run(harness, ex.starter, ex.tests)
                 if result["ok"] and result["tests"] and all(t["passed"] for t in result["tests"]):
                     errors.append(f"{rel}:{ex.line}: exercise {ex.id}: starter code already passes every test")
+                if time.perf_counter() - t0 > STARTER_SECONDS:
+                    # In the browser the learner would wait for the 60-second timeout.
+                    errors.append(f"{rel}:{ex.line}: exercise {ex.id}: the starter takes over {STARTER_SECONDS}s to fail; "
+                                  "make the tests fail fast (e.g. count calls and stop early)")
             if args.verbose:
                 print(f"  {rel} ({time.perf_counter() - started:.1f}s)", file=sys.stderr)
 

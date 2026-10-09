@@ -69,8 +69,8 @@ distributions = {
     "min_samples_leaf": randint(5, 50),
     "l2_regularization": loguniform(1e-3, 10),
 }
-search = RandomizedSearchCV(HistGradientBoostingClassifier(max_iter=200, random_state=0), distributions,
-                            n_iter=12, cv=4, scoring="neg_log_loss", random_state=0)
+search = RandomizedSearchCV(HistGradientBoostingClassifier(max_iter=100, random_state=0), distributions,
+                            n_iter=10, cv=3, scoring="neg_log_loss", random_state=0)
 search.fit(X, y)
 print({k: round(v, 3) if isinstance(v, float) else v for k, v in search.best_params_.items()})
 print(f"best CV log loss: {-search.best_score_:.3f}")
@@ -129,7 +129,7 @@ Things to know:
 ## Practice
 
 :::exercise tune-grid Tune a random forest
-Write `tune_forest(X, y, seed)` that runs `GridSearchCV` on `RandomForestClassifier(n_estimators=100, random_state=seed)` over `max_depth` in `[3, 6, None]` and `min_samples_leaf` in `[1, 10]`, with `cv=4` and `scoring="neg_log_loss"`. Return a tuple `(best_params, best_log_loss)` where the log loss is positive and rounded to 4 decimals.
+Write `tune_forest(X, y, seed)` that runs `GridSearchCV` on `RandomForestClassifier(n_estimators=50, random_state=seed)` over `max_depth` in `[3, 6, None]` and `min_samples_leaf` in `[1, 10]`, with `cv=4` and `scoring="neg_log_loss"`. Return a tuple `(best_params, best_log_loss)` where the log loss is positive and rounded to 4 decimals.
 
 @@starter
 from sklearn.ensemble import RandomForestClassifier
@@ -144,7 +144,7 @@ from sklearn.model_selection import GridSearchCV
 
 def tune_forest(X, y, seed):
     search = GridSearchCV(
-        RandomForestClassifier(n_estimators=100, random_state=seed),
+        RandomForestClassifier(n_estimators=50, random_state=seed),
         {"max_depth": [3, 6, None], "min_samples_leaf": [1, 10]},
         cv=4, scoring="neg_log_loss",
     )
@@ -159,7 +159,7 @@ from sklearn.model_selection import GridSearchCV
 def test_reference():
     """Matches a reference search"""
     X, y = load_breast_cancer(return_X_y=True)
-    ref = GridSearchCV(RandomForestClassifier(n_estimators=100, random_state=1), {"max_depth": [3, 6, None], "min_samples_leaf": [1, 10]}, cv=4, scoring="neg_log_loss").fit(X, y)
+    ref = GridSearchCV(RandomForestClassifier(n_estimators=50, random_state=1), {"max_depth": [3, 6, None], "min_samples_leaf": [1, 10]}, cv=4, scoring="neg_log_loss").fit(X, y)
     params, ll = tune_forest(X, y, 1)
     assert params == ref.best_params_ and ll == round(-ref.best_score_, 4)
     assert 0 < ll < 0.3

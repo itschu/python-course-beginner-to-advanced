@@ -79,6 +79,11 @@ pre.shiki {
   @apply block overflow-x-auto text-sm;
 }
 
+/* Long inline code (URLs, call signatures) may break rather than widen the page on phones. */
+.prose :not(pre) > code {
+  overflow-wrap: anywhere;
+}
+
 .katex-display {
   @apply overflow-x-auto overflow-y-hidden py-1;
 }

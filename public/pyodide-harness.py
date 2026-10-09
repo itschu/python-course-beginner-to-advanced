@@ -37,6 +37,11 @@ def _pp_format_exception(exc):
     lines.extend(te.format_exception_only())
     text = "".join(lines).rstrip()
     hint = _PP_HINTS.get(type(exc).__name__)
+    if isinstance(exc, RuntimeError) and "thread" in str(exc):
+        hint = (
+            "Hint: the browser runner has no threads. With FastAPI, write every endpoint and dependency "
+            "as `async def` (not `def`), and call the app through httpx.ASGITransport."
+        )
     return text + ("\n\n" + hint if hint else "")
 
 

@@ -292,10 +292,16 @@ def test_clear():
 
 def test_recursive_speed():
     """Makes recursive Fibonacci fast"""
+    calls = 0
     @memoize
     def fib(n):
+        nonlocal calls
+        calls += 1
+        if calls > 10_000:
+            raise AssertionError("far too many calls: results aren't being cached")
         return n if n < 2 else fib(n - 1) + fib(n - 2)
     assert fib(90) == 2880067194370816120
+    assert calls == 91
 
 def test_name_and_no_lru():
     """Keeps the name and doesn't use lru_cache"""

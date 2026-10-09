@@ -1,0 +1,10 @@
+[project]
+name = "match-predictions-api"
+version = "1.0.0"
+description = "Companion project for Phase 8 of the PyPath course: a FastAPI service that serves a football goal model."
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+filterwarnings = ["error"]

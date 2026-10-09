@@ -319,7 +319,7 @@ for ax, drop in zip(axes, [0.0, 0.3]):
 fig.tight_layout()
 plt.show()
 
-_, history, best = train([64, 128, 10], drop=0.2, patience=10)
+_, history, best = train([64, 128, 10], drop=0.2, patience=5)
 test_accuracy = np.mean(forward(X_test, best["params"])[0].argmax(axis=1) == y_test)
 logreg = LogisticRegression(max_iter=2000).fit(X_train, y_train)
 print(f"\nfull training set: stopped after {len(history)} epochs, best epoch {best['epoch']}")

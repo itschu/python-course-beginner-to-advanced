@@ -49,6 +49,16 @@ python3 -m venv .venv
 .venv/bin/python scripts/validate_content.py --phase python-foundations
 ```
 
+The validator runs in CPython with browser-like restrictions (no threads, no network, no OpenSSL
+functions). To check the content in real Pyodide too, including how long each cell takes in
+WebAssembly, download the full Pyodide release matching `public/pyodide-worker.js` from
+[GitHub](https://github.com/pyodide/pyodide/releases), extract it, and run:
+
+```bash
+.venv/bin/python scripts/validate_content.py --export-jobs jobs.json
+PYODIDE_DIR=/path/to/pyodide node scripts/check_pyodide.mjs jobs.json
+```
+
 The datasets in `public/data/` are synthetic and reproducible: `npm run data` runs
 `scripts/generate_datasets.py` and then `scripts/generate_model_predictions.py` (the Phase 6 goal-model
 predictions, which depend on `matches.csv`).
@@ -66,10 +76,23 @@ public/pyodide-worker.js   Web worker that runs Python
 public/pyodide-harness.py  Grading harness (runs code, captures output and charts, runs tests)
 public/data/            Datasets lessons can open as "data/<file>"
 notebooks/              Colab notebooks for the PyTorch lessons (built from notebooks/src/)
+backend/                Companion FastAPI project for Phase 8 (its own README, tests and Dockerfile)
 scripts/                Content validator, dataset generators, notebook builder
 ```
 
 Lesson format: see [`content/README.md`](content/README.md).
+
+## Companion backend project
+
+Phase 8 teaches FastAPI in the browser; [`backend/`](backend/README.md) is the same match-prediction
+service laid out as a real project, with settings from environment variables, a database, API keys,
+a pytest suite and a Dockerfile:
+
+```bash
+cd backend && python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt && python -m training.train_model
+pytest -q && uvicorn app.main:app --reload
+```
 
 ## Colab notebooks
 

@@ -368,7 +368,7 @@ GRID = [-0.2, -0.15, -0.1, -0.05, 0.0, 0.05, 0.1]
 def test_independent_data():
     """Independent Poisson scores give rho near 0"""
     rng = np.random.default_rng(0)
-    n = 800
+    n = 300
     lh, la = np.full(n, 1.4), np.full(n, 1.1)
     hg, ag = rng.poisson(lh), rng.poisson(la)
     assert abs(estimate_rho(lh, la, hg, ag, GRID)) <= 0.05
@@ -376,10 +376,10 @@ def test_independent_data():
 def test_extra_low_draws():
     """Extra 0-0 and 1-1 results push rho negative"""
     rng = np.random.default_rng(1)
-    n = 800
+    n = 300
     lh, la = np.full(n, 1.4), np.full(n, 1.1)
     hg, ag = rng.poisson(lh), rng.poisson(la)
-    swap = rng.random(n) < 0.12
+    swap = rng.random(n) < 0.15
     hg[swap] = ag[swap] = rng.integers(0, 2, swap.sum())
     assert estimate_rho(lh, la, hg, ag, GRID) < 0
 :::
