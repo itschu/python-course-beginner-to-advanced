@@ -1,0 +1,126 @@
+customer_id,name,city,signup_date,age,plan,monthly_spend
+75,Radia Ritchie,BRISTOL,2022-12-13,31,basic,9.99
+46,Radia Hamilton,leeds ,2022-04-03,45,BASIC ,19.99
+49,Radia Berners-Lee,Leeds,Mar 06 2023,29,Basic,14.99
+32,  linus perlman ,LONDON,18/04/2024,34,basic,£9.99
+66,Guido Johnson,Manchster,2023-10-10,27,Basic,9.99
+67,Barbara Liskov,london,2024-02-29,60,Basic,9.99
+119,Guido Perlman,manchester,2023-12-03,56,PREMIUM,19.99
+101,Dennis Turing,LONDON,2024-02-07,,Basic,9.99
+116,Barbara Turing,BRISTOL,2023-03-21,29,pro,N/A
+34,Barbara Allen,Bristol,2023-08-12,42,basic,9.99
+63,Dennis Hopper,London,2024-01-23,41,PREMIUM,19.99
+45,Katherine Liskov,Manchster,2022-11-04,53,Basic,£9.99
+106,Linus Allen,Manchster,14/04/2024,33,basic,£14.99
+105,Ken Liskov,London,Mar 24 2024,39,Basic,9.99
+120,  frances thompson ,Bristol,2024-03-25,28,BASIC ,14.99
+107,Dennis Dijkstra,Manchester,2022-12-05,66,BASIC ,£19.99
+36,  margaret johnson ,leeds ,2023-04-15,-1,BASIC ,9.99
+104,Edsger Allen,Bristol,2022-02-25,40,premium,£29.99
+42,Edsger Torvalds,manchester,13/07/2022,51,BASIC ,9.99
+3,Hedy Liskov,Manchster,Dec 03 2022,56,PREMIUM,29.99
+54,Guido Ritchie,Bristol,2023-01-17,,BASIC ,9.99
+88,  edsger torvalds ,Leeds,Jun 29 2023,39,basic,£9.99
+111,Radia Perlman,BRISTOL,2022-09-07,51,Premium,19.99
+57,Hedy Hamilton,leeds ,2024-06-17,,Premium,19.99
+91,Frances Torvalds,BRISTOL,06/05/2024,18,premium,29.99
+52,Margaret Liskov,Manchster,10/04/2023,58,Basic,9.99
+84,  alan thompson ,london,2022-01-08,20,Premium,29.99
+18,Guido Liskov,Bristol,Apr 04 2023,60,Basic,9.99
+96,Tim Thompson,BRISTOL,2023-04-29,20,premium,29.99
+79,Ada Ritchie,manchester,06/05/2024,18,Basic,£14.99
+47,Katherine Hamilton, London ,12/08/2023,,Basic,9.99
+70,Ada Ritchie,leeds ,Jul 17 2022,60,premium,£24.99
+43,Dennis Lovelace,Bristol,06/01/2023,29,Basic,£14.99
+55,  katherine thompson ,London,2023-02-15,34,premium,£19.99
+103,Hedy Thompson,Manchester,Aug 18 2023,44,Premium,24.99
+118,Ada Lovelace,LONDON,2023-10-09,59,Pro,49.00
+56,Radia Thompson,LONDON,2024-01-03,65,BASIC ,£19.99
+100,Dennis Perlman,LONDON,2023-02-06,57,premium,24.99
+117,Alan Hopper,Leeds,2022-01-14,,Basic,£14.99
+74,  dennis berners-lee ,Manchester,2022-01-27,53,Premium,N/A
+11,Alan Perlman,Leeds,2024-06-15,32,BASIC ,19.99
+60,Alan Lovelace,manchester,04/07/2022,68,Basic,19.99
+33,Linus Liskov,london,2023-05-29,73,pro,49.00
+83,Linus Dijkstra,Manchester,Feb 28 2023,20,Premium,£29.99
+39,Edsger Hopper,London,2022-04-25,35,Pro,49.00
+20,Ada Liskov,london,2022-01-26,70,Basic,9.99
+101,Dennis Turing,LONDON,2024-02-07,,Basic,9.99
+28,Linus Hopper,Manchster,27/03/2024,49,PREMIUM,19.99
+37,  hedy berners-lee ,manchester,2023-05-20,51,basic,N/A
+59,Grace Torvalds,BRISTOL,2022-02-04,74,premium,19.99
+40,Ada Perlman,Manchster,2023-05-17,23,premium,19.99
+78,Margaret Lovelace,,2022-03-17,34,Basic,£9.99
+93,Barbara Hopper,leeds ,2022-08-27,39,BASIC ,9.99
+89,Ada Lamarr,Manchster,2023-07-15,39,PREMIUM,£24.99
+41,Hedy Liskov,LONDON,2023-02-12,30,BASIC ,14.99
+90,Grace Lovelace,london,20/02/2023,48,Basic,9.99
+68,  dennis lovelace , London ,28/01/2023,51,BASIC ,9.99
+92,Dennis Lamarr,Bristol,May 14 2023,57,premium,£24.99
+24,Tim van Rossum,Bristol,2024-05-28,31,basic,9.99
+35,Barbara Hamilton,manchester,08/08/2022,58,PREMIUM,£29.99
+81,Grace Lamarr,BRISTOL,2024-03-25,44,basic,N/A
+112,Katherine Perlman,Manchester,2022-06-01,60,Basic,19.99
+5,Barbara Johnson,Bristol,2022-05-12,63,BASIC ,N/A
+86,Katherine Ritchie,leeds ,22/08/2023,63,basic,14.99
+16,Grace Ritchie,BRISTOL,2023-06-06,,Basic,9.99
+42,Edsger Torvalds,manchester,13/07/2022,51,BASIC ,9.99
+53,Edsger Ritchie,manchester,2024-01-04,64,basic,9.99
+27,Guido Berners-Lee,London,2022-02-01,42,premium,19.99
+44,Ada Turing, London ,Jun 03 2023,,basic,9.99
+25,  tim dijkstra ,Leeds,2024-03-27,24,basic,9.99
+99,Tim Ritchie,,03/08/2022,27,BASIC ,£19.99
+114,Katherine Thompson,Manchster,2022-12-17,32,BASIC ,N/A
+97,Hedy Turing,London,unknown,24,Basic,9.99
+50,  hedy berners-lee ,Bristol,2022-05-12,57,Basic,£19.99
+22,Dennis Dijkstra,manchester,Mar 14 2023,23,premium,£19.99
+71,  barbara van rossum ,leeds ,30/05/2024,31,Basic,£9.99
+4,  tim allen ,LONDON,2024-04-18,29,basic,£9.99
+113,Margaret Hamilton,LONDON,06/04/2022,51,Basic,9.99
+31,Ken Thompson,,2022-12-03,54,premium,29.99
+17,Radia Lovelace,manchester,2023-03-17,59,Basic,14.99
+48,Ken Lamarr,manchester,2022-02-11,24,BASIC ,9.99
+94,Margaret Berners-Lee,Manchester,22/11/2023,18,BASIC ,£19.99
+9,Guido Allen,Bristol,Aug 04 2023,45,basic,9.99
+82,  alan torvalds ,,Jun 02 2024,22,BASIC ,£9.99
+61,Linus Lamarr,leeds ,2023-11-13,35,pro,54.00
+1,Frances Perlman,manchester,2024-05-31,21,basic,N/A
+115,Guido Hamilton, London ,20/02/2023,41,BASIC ,9.99
+58,Ken Lamarr,BRISTOL,2024-01-09,19,basic,14.99
+23,  margaret ritchie ,Manchster,2023-10-24,45,basic,19.99
+62,Ada Berners-Lee,Leeds,2023-04-08,19,basic,N/A
+64,Alan Liskov,,2022-11-15,35,Basic,9.99
+8,Alan van Rossum,Bristol,Apr 07 2022,52,Premium,29.99
+3,Hedy Liskov,Manchster,Dec 03 2022,56,PREMIUM,29.99
+14,  tim lovelace ,Manchester,2022-08-21,20,PREMIUM,19.99
+87,Edsger Lovelace,Manchster,07/09/2022,40,basic,£9.99
+95,  tim berners-lee ,BRISTOL,2023-03-21,,pro,N/A
+98,Katherine Torvalds,london,2024-05-16,22,pro,49.00
+88,  edsger torvalds ,Leeds,Jun 29 2023,39,basic,£9.99
+69,  ken liskov ,,09/02/2022,50,PREMIUM,19.99
+109,Ada Lamarr, London ,2023-12-07,39,basic,£9.99
+15,Tim Johnson, London ,24/08/2022,39,Premium,19.99
+30,Guido Torvalds, London ,2022-12-18,62,pro,54.00
+29,Barbara Dijkstra, London ,2022-07-19,62,PREMIUM,£19.99
+12,  katherine johnson ,Leeds,Aug 02 2023,37,Basic,£9.99
+85,Margaret Thompson,leeds ,Jan 09 2024,,premium,29.99
+19,Hedy Lovelace,Manchster,2022-12-22,,Basic,£14.99
+102,  edsger torvalds ,LONDON,unknown,57,basic,9.99
+21,Hedy Hopper,manchester,2023-09-19,18,Basic,N/A
+51,Frances Hopper,London,2023-01-15,73,basic,9.99
+26,Radia Allen,Leeds,Sep 22 2023,-1,Basic,9.99
+7,Hedy Allen,Bristol,13/08/2023,24,basic,14.99
+110,Ada Hamilton,Leeds,Mar 14 2024,18,premium,19.99
+72,  alan liskov ,London,Jun 12 2023,54,pro,49.00
+77,Guido Hopper,London,07/12/2023,32,Pro,£54.00
+2,Alan Thompson,manchester,09/06/2022,69,Basic,14.99
+17,Radia Lovelace,manchester,2023-03-17,59,Basic,14.99
+65,Frances van Rossum,LONDON,unknown,59,Basic,9.99
+80,Tim Hopper,Bristol,2023-05-15,74,PREMIUM,19.99
+6,Edsger Hopper,manchester,Sep 02 2023,40,basic,£14.99
+76,Linus Allen,manchester,2023-09-28,69,BASIC ,£9.99
+10,Guido Thompson,leeds ,2022-10-18,74,BASIC ,9.99
+73,  margaret perlman ,Manchester,08/01/2022,35,Basic,9.99
+13,Guido Perlman, London ,05/04/2024,51,PREMIUM,24.99
+108,Dennis Hopper,,2023-01-29,,basic,19.99
+38,Tim Hamilton,BRISTOL,2022-11-11,43,Premium,19.99

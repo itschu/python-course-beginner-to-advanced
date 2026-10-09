@@ -1,0 +1,92 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+:root {
+  color-scheme: light;
+}
+
+:root.dark {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-white text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100;
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium whitespace-nowrap transition-colors select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-sm {
+    @apply rounded-md px-2.5 py-1 text-xs;
+  }
+  .btn-primary {
+    @apply bg-blue-600 text-white hover:bg-blue-700;
+  }
+  .btn-success {
+    @apply bg-emerald-600 text-white hover:bg-emerald-700;
+  }
+  .btn-danger {
+    @apply bg-rose-600 text-white hover:bg-rose-700;
+  }
+  .btn-ghost {
+    @apply text-zinc-700 hover:bg-zinc-200/70 dark:text-zinc-300 dark:hover:bg-zinc-800;
+  }
+  .btn-outline {
+    @apply border border-zinc-300 bg-white text-zinc-800 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800;
+  }
+  .card {
+    @apply rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900;
+  }
+  .input {
+    @apply w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100;
+  }
+}
+
+/* Inline code: a subtle pill instead of the typography plugin's backticks. */
+.prose :where(code):not(:where(pre *))::before,
+.prose :where(code):not(:where(pre *))::after {
+  content: none;
+}
+.prose :where(code):not(:where(pre *)) {
+  @apply rounded-md bg-zinc-100 px-1.5 py-0.5 text-[0.86em] font-medium text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200;
+}
+.quiz-option code {
+  @apply rounded bg-zinc-100 px-1 py-0.5 font-mono text-[0.86em] dark:bg-zinc-800;
+}
+
+/* Shiki code blocks (light and dark themes are both embedded as CSS variables). */
+pre.shiki {
+  @apply my-5 overflow-x-auto rounded-xl border border-zinc-200 px-4 py-3 text-[13.5px] leading-relaxed dark:border-zinc-800;
+}
+.code-block pre.shiki {
+  @apply my-0;
+}
+.dark .shiki,
+.dark .shiki span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+}
+
+.prose table {
+  @apply block overflow-x-auto text-sm;
+}
+
+.katex-display {
+  @apply overflow-x-auto overflow-y-hidden py-1;
+}
+
+/* CodeMirror */
+.cm-editor {
+  @apply bg-white dark:bg-zinc-900;
+}
+.dark .cm-editor .cm-gutters {
+  @apply border-zinc-800 bg-zinc-900;
+}

@@ -1,0 +1,14 @@
+# Python packages for scripts/validate_content.py and scripts/generate_datasets.py.
+# Versions match what the in-browser Python (Pyodide 314.0.7) ships with.
+numpy==2.4.*
+pandas==3.0.2
+scikit-learn==1.8.0
+scipy==1.18.*
+matplotlib==3.10.*
+statsmodels==0.14.*
+pydantic==2.12.*
+fastapi==0.136.*
+starlette==1.0.*
+httpx==0.28.*
+sqlalchemy==2.0.*
+joblib

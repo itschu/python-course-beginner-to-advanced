@@ -1,0 +1,52 @@
+{
+  "name": "pypath-academy",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
+    "validate": "python3 scripts/validate_content.py",
+    "data": "python3 scripts/generate_datasets.py"
+  },
+  "dependencies": {
+    "@codemirror/lang-python": "6.2.1",
+    "@codemirror/language": "6.13.1",
+    "@shikijs/rehype": "4.5.0",
+    "@uiw/react-codemirror": "4.25.12",
+    "better-auth": "1.7.7",
+    "geist": "1.7.2",
+    "gray-matter": "4.0.3",
+    "katex": "0.19.0",
+    "lucide-react": "1.53.0",
+    "next": "16.3.8",
+    "pg": "8.23.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "rehype-katex": "7.0.1",
+    "rehype-stringify": "10.0.1",
+    "remark-gfm": "4.0.1",
+    "remark-math": "6.0.0",
+    "remark-parse": "11.0.0",
+    "remark-rehype": "11.1.2",
+    "server-only": "0.0.1",
+    "shiki": "4.5.0",
+    "unified": "11.0.5",
+    "unist-util-visit": "5.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@tailwindcss/typography": "0.5.20",
+    "@types/hast": "3.0.4",
+    "@types/node": "^20",
+    "@types/pg": "8.23.1",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.8",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
