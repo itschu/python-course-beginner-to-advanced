@@ -25,7 +25,8 @@ export function ContinueCard({ lessons }: { lessons: CourseLesson[] }) {
 
   const next =
     lessons.slice(0, lastTouched + 1).find((l) => data[l.key] && !data[l.key].completed) ??
-    lessons.slice(lastTouched + 1).find((l) => !data[l.key]?.completed);
+    lessons.slice(lastTouched + 1).find((l) => !data[l.key]?.completed) ??
+    lessons.find((l) => !data[l.key]?.completed);
   const done = lessons.filter((l) => data[l.key]?.completed).length;
 
   return (
@@ -35,7 +36,7 @@ export function ContinueCard({ lessons }: { lessons: CourseLesson[] }) {
           Welcome back · {done}/{lessons.length} lessons complete
         </div>
         <div className="mt-1 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-          {next ? next.title : "You've completed every lesson. Time for the capstone!"}
+          {next ? next.title : "You've completed the whole course. Congratulations!"}
         </div>
         {next && <div className="text-sm text-zinc-500 dark:text-zinc-400">{next.phaseTitle}</div>}
       </div>

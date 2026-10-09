@@ -10,17 +10,23 @@ nothing for learners to install.
 
 ## The course
 
-| Phase | Topic |
-| --- | --- |
-| 1 | Python Foundations |
-| 2 | Professional Python (OOP, testing, tooling) |
-| 3 | Data Analysis with NumPy, pandas & Matplotlib |
-| 4 | Math & Statistics for ML |
-| 5 | Machine Learning with scikit-learn |
-| 6 | Applied ML: Time Series, Betting & Trading |
-| 7 | Deep Learning with PyTorch (Colab) |
-| 8 | Python for the Backend (FastAPI) |
-| 9 | Capstone & Career |
+| Phase | Topic | Lessons | Exercises |
+| --- | --- | --- | --- |
+| 1 | Python Foundations | 14 | 47 |
+| 2 | Professional Python (OOP, testing, tooling) | 10 | 25 |
+| 3 | Data Analysis with NumPy, pandas & Matplotlib | 10 | 32 |
+| 4 | Math & Statistics for ML | 9 | 28 |
+| 5 | Machine Learning with scikit-learn | 13 | 30 |
+| 6 | Applied ML: Time Series, Betting & Trading | 10 | 28 |
+| 7 | Deep Learning with PyTorch (Colab) | 12 | 29 |
+| 8 | Python for the Backend (FastAPI) | 10 | 26 |
+| 9 | Capstone & Career | 8 | 23 |
+
+96 lessons and 268 auto-graded exercises in total. The running example throughout the applied phases
+is a football prediction and value-betting system, with an EUR/USD dataset for trading; general
+examples are used everywhere else. Phase 9 puts it all together: system design, a data pipeline, a
+season-long simulation with weekly retraining, champion/challenger evaluation and monitoring, then
+portfolio, Kaggle, research papers, interviews and a final exam.
 
 Resources for every phase (courses, books, videos, docs, tools) are listed on the site's
 **Resources** page and in [`content/curriculum.ts`](content/curriculum.ts).
