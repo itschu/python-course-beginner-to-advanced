@@ -30,6 +30,7 @@ import sys
 import tempfile
 import threading
 import time
+import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -227,6 +228,10 @@ def parse_quiz(rest: str, body: list[str], path: Path, line: int) -> str:
 
 
 def sandbox_like_browser() -> None:
+    # Pyodide has no OpenMP threads, so libraries like scikit-learn use one thread
+    # (and joblib then runs sequentially instead of starting a thread pool).
+    os.environ["OMP_NUM_THREADS"] = "1"
+
     def no_threads(self, *args, **kwargs):
         raise RuntimeError("can't start new thread (threads are not available in the browser runner)")
 
@@ -250,13 +255,23 @@ def run(harness: dict, code: str, tests: str | None = None) -> tuple[dict, str]:
     buffer = io.StringIO()
     real_stdout, real_stderr = sys.stdout, sys.stderr
     sys.stdout = sys.stderr = buffer
-    try:
-        result = json.loads(asyncio.run(harness["_pp_run"](code, tests)))
-    except Timeout:
-        result = {"ok": False, "error": f"timed out after {TIMEOUT_SECONDS}s", "tests": None}
-    finally:
-        sys.stdout, sys.stderr = real_stdout, real_stderr
-        signal.alarm(0)
+    with warnings.catch_warnings(record=True) as caught:
+        for category in (FutureWarning, DeprecationWarning, PendingDeprecationWarning):
+            warnings.simplefilter("always", category)
+        try:
+            result = json.loads(asyncio.run(harness["_pp_run"](code, tests)))
+        except Timeout:
+            result = {"ok": False, "error": f"timed out after {TIMEOUT_SECONDS}s", "tests": None}
+        finally:
+            sys.stdout, sys.stderr = real_stdout, real_stderr
+            signal.alarm(0)
+    deprecations = sorted({
+        f"{w.category.__name__}: {str(w.message).splitlines()[0][:200]}"
+        for w in caught
+        if issubclass(w.category, (FutureWarning, DeprecationWarning, PendingDeprecationWarning))
+        and "asyncio" not in (w.filename or "")
+    })
+    result["deprecations"] = deprecations
     return result, buffer.getvalue()
 
 
@@ -324,9 +339,13 @@ def main() -> int:
                 if result["ok"] == expect_error:
                     what = "should raise an error but ran fine" if expect_error else f"raised:\n{result['error']}"
                     errors.append(f"{rel}:{line}: code cell {what}\n--- output ---\n{out[-1500:]}")
+                for d in result["deprecations"]:
+                    errors.append(f"{rel}:{line}: code cell uses a deprecated API: {d}")
             for ex in lesson.exercises:
                 counts["exercises"] += 1
                 result, out = run(harness, ex.solution, ex.tests)
+                for d in result["deprecations"]:
+                    errors.append(f"{rel}:{ex.line}: exercise {ex.id} uses a deprecated API: {d}")
                 if not result["ok"]:
                     errors.append(f"{rel}:{ex.line}: exercise {ex.id}: solution raised:\n{result['error']}")
                 elif not result["tests"] or not all(t["passed"] for t in result["tests"]):
