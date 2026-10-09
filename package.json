@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/migrate.mjs --if-configured && next build",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
     "validate": "python3 scripts/validate_content.py",
-    "data": "python3 scripts/generate_datasets.py"
+    "data": "python3 scripts/generate_datasets.py",
+    "db:migrate": "node scripts/migrate.mjs"
   },
   "dependencies": {
     "@codemirror/lang-python": "6.2.1",

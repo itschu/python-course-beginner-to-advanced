@@ -38,24 +38,40 @@ interface ProgressContextValue {
 
 const ProgressContext = createContext<ProgressContextValue | null>(null);
 
-function readLocal(): ProgressData {
+interface StoredProgress {
+  /** Account the data belongs to; null for guest progress (not signed in). */
+  owner: string | null;
+  lessons: ProgressData;
+}
+
+function readLocal(): StoredProgress {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? sanitizeProgress(JSON.parse(raw)) : {};
+    if (!raw) return { owner: null, lessons: {} };
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object" && "lessons" in parsed && "owner" in parsed) {
+      return {
+        owner: typeof parsed.owner === "string" ? parsed.owner : null,
+        lessons: sanitizeProgress(parsed.lessons),
+      };
+    }
+    return { owner: null, lessons: sanitizeProgress(parsed) };
   } catch {
-    return {};
+    return { owner: null, lessons: {} };
   }
 }
 
-function writeLocal(data: ProgressData) {
+function writeLocal(stored: StoredProgress) {
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
   } catch {
     // Storage can be full or blocked (private mode). Progress still works for this visit.
   }
 }
 
 export interface RemoteSync {
+  /** The signed-in account. */
+  userId: string;
   /** Load everything saved on the server for the signed-in user. */
   pull: () => Promise<ProgressData>;
   /** Save these lessons on the server. */
@@ -73,26 +89,32 @@ export function ProgressProvider({
   remote?: RemoteSync | null;
 }) {
   const [data, setData] = useState<ProgressData>({});
+  const [owner, setOwner] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [syncState, setSyncState] = useState<SyncState>("local");
   const dirty = useRef(new Set<string>());
   const dataRef = useRef(data);
+  const ownerRef = useRef(owner);
+  const previousUser = useRef<string | null>(null);
   const flushTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     dataRef.current = data;
-  }, [data]);
+    ownerRef.current = owner;
+  }, [data, owner]);
 
   useEffect(() => {
     // Hydrate from localStorage once on mount (it isn't available during server rendering).
+    const stored = readLocal();
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setData(readLocal());
+    setData(stored.lessons);
+    setOwner(stored.owner);
     setHydrated(true);
   }, []);
 
   useEffect(() => {
-    if (hydrated) writeLocal(data);
-  }, [data, hydrated]);
+    if (hydrated) writeLocal({ owner, lessons: data });
+  }, [data, owner, hydrated]);
 
   const flush = useCallback(async () => {
     if (!remote || dirty.current.size === 0) return;
@@ -118,26 +140,39 @@ export function ProgressProvider({
     flushTimer.current = setTimeout(flush, 1500);
   }, [remote, flush]);
 
-  // When a learner signs in, merge server progress with this browser's and upload the result.
+  // Signing in merges this browser's progress into the account (only guest progress or the
+  // same account's: never another person's). Signing out removes it from this browser.
   useEffect(() => {
-    if (!hydrated || !remote) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSyncState("local");
+    if (!hydrated) return;
+    if (!remote) {
+      if (previousUser.current) {
+        previousUser.current = null;
+        dirty.current.clear();
+        setData({});
+        setOwner(null);
+      }
       return;
     }
+    previousUser.current = remote.userId;
     let cancelled = false;
+    // Syncing with the server (an external system) is exactly what this effect is for.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSyncState("syncing");
     remote
       .pull()
       .then(async (server) => {
         if (cancelled) return;
-        const merged = mergeProgress(server, dataRef.current);
+        const included = [...dirty.current];
+        const local = ownerRef.current === null || ownerRef.current === remote.userId ? dataRef.current : {};
+        const merged = mergeProgress(server, local);
         setData(merged);
+        setOwner(remote.userId);
         const changed: ProgressData = {};
         for (const [key, lesson] of Object.entries(merged)) {
           if (JSON.stringify(server[key]) !== JSON.stringify(lesson)) changed[key] = lesson;
         }
         if (Object.keys(changed).length > 0) await remote.push(changed);
+        included.forEach((key) => dirty.current.delete(key));
         if (!cancelled) setSyncState("synced");
       })
       .catch(() => !cancelled && setSyncState("error"));
@@ -172,7 +207,7 @@ export function ProgressProvider({
     () => ({
       data,
       hydrated,
-      syncState,
+      syncState: remote ? syncState : "local",
       lesson: (key) => data[key],
       saveExerciseCode: (lessonKey, exerciseId, code) =>
         update(lessonKey, (lesson, now) => ({

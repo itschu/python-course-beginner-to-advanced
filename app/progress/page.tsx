@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { AccountCard } from "@/components/auth/account-card";
 import { getLessonMetas, getPhases } from "@/lib/content";
 import { ProgressDashboard } from "./progress-dashboard";
 
@@ -20,7 +21,7 @@ export default function ProgressPage() {
       <p className="mt-2 mb-8 text-zinc-600 dark:text-zinc-400">
         Lessons, exercises and quiz scores across the whole course.
       </p>
-      <ProgressDashboard phases={phases} />
+      <ProgressDashboard phases={phases} account={<AccountCard />} />
     </div>
   );
 }

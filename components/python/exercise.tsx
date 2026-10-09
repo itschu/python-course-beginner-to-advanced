@@ -33,18 +33,17 @@ export function Exercise(props: ExerciseProps) {
   const [showTests, setShowTests] = useState(false);
   const [justPassed, setJustPassed] = useState(false);
   const run = useCodeRun();
-  const restored = useRef(false);
+  const edited = useRef(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Restore the learner's saved code once progress has loaded.
+  // Show the learner's saved code once it loads (from this browser, or later from their
+  // account after sync), unless they've already started typing here.
   useEffect(() => {
-    if (!progress.hydrated || restored.current) return;
-    restored.current = true;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (saved?.code) setCode(saved.code);
-  }, [progress.hydrated, saved?.code]);
+    if (!edited.current && saved?.code !== undefined) setCode(saved.code);
+  }, [saved?.code]);
 
   const onChange = (value: string) => {
+    edited.current = true;
     setCode(value);
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => progress.saveExerciseCode(lessonKey, id, value), 800);

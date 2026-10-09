@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Local copy of Pyodide used for offline testing
+    "public/pyodide-local/**",
   ]),
 ]);
 

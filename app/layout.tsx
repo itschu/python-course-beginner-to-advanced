@@ -4,9 +4,11 @@ import "katex/dist/katex.min.css";
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 
+import { AccountMenu } from "@/components/auth/account-menu";
 import { Providers } from "@/components/providers";
 import { SiteHeader } from "@/components/site-header";
 import { themeScript } from "@/components/theme-toggle";
+import { authStatus } from "@/lib/auth-status";
 import { githubUrl, site } from "@/lib/site";
 import "./globals.css";
 
@@ -23,14 +25,15 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
+  const auth = authStatus();
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="flex min-h-screen flex-col font-sans">
-        <Providers>
-          <SiteHeader />
+        <Providers auth={auth}>
+          <SiteHeader account={<AccountMenu />} />
           <main className="flex-1">{children}</main>
           <footer className="border-t border-zinc-200 py-8 text-sm text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
             <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4">

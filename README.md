@@ -34,7 +34,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000. Progress is saved in your browser.
+Open http://localhost:3000. Progress is saved in your browser; see below to add accounts.
 
 ## Checking the content
 
@@ -68,9 +68,60 @@ scripts/                Content validator and dataset generator
 
 Lesson format: see [`content/README.md`](content/README.md).
 
+## Accounts and cloud progress (optional)
+
+Without a database the site works fully and saves progress in the browser (with export/import on the
+**My progress** page). Add a Postgres database to let learners create accounts and sync progress and
+saved code across devices. Accounts use [Better Auth](https://www.better-auth.com/) with
+email/password, plus optional "Continue with GitHub".
+
+### Deploy to Vercel
+
+1. Import this repository in Vercel (framework: Next.js, default settings). It deploys and works
+   straight away with browser-only progress.
+2. In the Vercel project, open **Storage** and add a **Neon** Postgres database (free tier). This sets
+   `DATABASE_URL` for you.
+3. In **Settings → Environment Variables**, add:
+   - `BETTER_AUTH_SECRET`: a long random string (`openssl rand -base64 32`)
+   - `BETTER_AUTH_URL`: your site's URL, e.g. `https://your-app.vercel.app`
+4. Redeploy. The build runs `scripts/migrate.mjs`, which creates the tables automatically, and a
+   **Sign in** button appears in the header.
+5. Optional, GitHub sign-in: create an OAuth app at https://github.com/settings/developers with the
+   callback URL `https://your-app.vercel.app/api/auth/callback/github`, then set `GITHUB_CLIENT_ID`
+   and `GITHUB_CLIENT_SECRET` and redeploy.
+
+### Locally
+
+Copy `.env.example` to `.env.local`, fill in `DATABASE_URL` and `BETTER_AUTH_SECRET` (any Postgres
+works, e.g. `vercel env pull` to reuse the Neon database, or a local Postgres), then:
+
+```bash
+npm run db:migrate   # create the tables
+npm run dev
+```
+
+### How sync works
+
+- Progress is always saved in the browser first, so the site keeps working offline.
+- Signing in merges the browser's guest progress into the account. Changes are sent to
+  `/api/progress` a moment later.
+- Merging never loses work: a passed exercise stays passed, the best quiz score wins, and saved code
+  comes from the most recent edit. The server merges too, so two devices can't overwrite each other.
+- Signing out removes the account's progress from that browser, and progress from one account is
+  never merged into another.
+
+Tables: Better Auth's `user`, `session`, `account` and `verification`, plus `lesson_progress`
+([`db/schema.sql`](db/schema.sql)).
+
 ## Configuration
 
 | Variable | Purpose |
 | --- | --- |
+| `DATABASE_URL` (or `POSTGRES_URL`) | Postgres connection string. Enables accounts and sync. |
+| `BETTER_AUTH_SECRET` | Secret for signing sessions. Required for accounts. |
+| `BETTER_AUTH_URL` | Public URL of the site. |
+| `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | Optional. Enables "Continue with GitHub". |
 | `NEXT_PUBLIC_PYODIDE_INDEX_URL` | Optional. Where to load Pyodide from (defaults to the jsDelivr CDN, v314.0.7). |
 | `NEXT_PUBLIC_REPO`, `NEXT_PUBLIC_REPO_BRANCH` | Optional. Used for "Open in Colab" and GitHub links (defaults: `itschu/python-course-beginner-to-advanced`, `main`). |
+
+See [`.env.example`](.env.example).
