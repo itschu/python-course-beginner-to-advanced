@@ -70,7 +70,7 @@ Probability is the reciprocal of decimal odds.
 
 Tests are `test_*` functions (sync or async) that run after the learner's code, in the same
 namespace. The docstring's first line is shown to the learner. `output` holds everything the
-learner's code printed. The validator checks that the solution passes and the starter fails.
+learner's code printed, and `source` holds the learner's code as a string. The validator checks that the solution passes and the starter fails.
 
 ### Quizzes
 
@@ -99,3 +99,11 @@ Markdown content.
 ```
 
 Variants: `note`, `info`, `tip`, `warning`, `colab`.
+
+Display maths must have the `$$` delimiters on their own lines:
+
+```markdown
+$$
+\text{EV} = p \times (o - 1) - (1 - p)
+$$
+```

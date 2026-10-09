@@ -72,7 +72,7 @@ export function Exercise(props: ExerciseProps) {
   return (
     <section
       id={`exercise-${id}`}
-      className={`not-prose my-8 scroll-mt-24 overflow-hidden rounded-xl border-2 bg-white shadow-sm dark:bg-zinc-900 ${
+      className={`my-8 scroll-mt-24 overflow-hidden rounded-xl border-2 bg-white shadow-sm dark:bg-zinc-900 ${
         passed ? "border-emerald-500/60" : "border-blue-500/40"
       }`}
     >

@@ -38,15 +38,17 @@ const CALLOUT_STYLES = {
   },
 } as const;
 
+const PROSE = "prose prose-zinc dark:prose-invert max-w-none prose-headings:scroll-mt-24 prose-a:text-blue-700 dark:prose-a:text-blue-400";
+
 export function LessonBody({ blocks, lessonKey }: { blocks: Block[]; lessonKey: string }) {
   return (
-    <div className="lesson-body prose prose-zinc dark:prose-invert max-w-none">
+    <div className="lesson-body">
       {blocks.map((block, i) => {
         switch (block.type) {
           case "markdown":
-            return <div key={i} dangerouslySetInnerHTML={{ __html: block.html }} />;
+            return <div key={i} className={PROSE} dangerouslySetInnerHTML={{ __html: block.html }} />;
           case "static-code":
-            return <div key={i} className="code-block" dangerouslySetInnerHTML={{ __html: block.html }} />;
+            return <div key={i} className="code-block my-5" dangerouslySetInnerHTML={{ __html: block.html }} />;
           case "code":
             return <CodeCell key={i} code={block.code} />;
           case "exercise":
@@ -72,7 +74,7 @@ export function LessonBody({ blocks, lessonKey }: { blocks: Block[]; lessonKey: 
             const style = CALLOUT_STYLES[block.variant];
             const Icon = style.icon;
             return (
-              <aside key={i} className={`not-prose my-6 rounded-xl border px-4 py-3 ${style.className}`}>
+              <aside key={i} className={`my-6 rounded-xl border px-4 py-3 ${style.className}`}>
                 <div className="mb-1 flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                   <Icon className={`size-4 ${style.iconClass}`} aria-hidden />
                   {block.title || style.label}

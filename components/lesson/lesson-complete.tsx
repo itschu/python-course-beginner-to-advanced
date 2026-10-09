@@ -23,7 +23,7 @@ export function LessonComplete({
   const allExercises = passed === lesson.exerciseIds.length;
 
   return (
-    <div className="not-prose mt-12 rounded-xl border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="mt-12 rounded-xl border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-800 dark:bg-zinc-900">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="m-0 text-lg font-semibold text-zinc-900 dark:text-zinc-100">

@@ -93,9 +93,10 @@ def _pp_failing_line(exc):
     return "Check failed"
 
 
-async def _pp_run_tests(tests_src, user_ns, stdout_text):
+async def _pp_run_tests(tests_src, user_ns, stdout_text, user_src):
     ns = dict(user_ns)
     ns["output"] = stdout_text
+    ns["source"] = user_src
     before = dict(ns)
     try:
         with contextlib.redirect_stdout(io.StringIO()):
@@ -155,7 +156,7 @@ async def _pp_run(code, tests=None):
     except Exception as exc:
         result["error"] = (result["error"] or "") + "\nCould not draw the figure: " + repr(exc)
     if tests is not None and result["ok"]:
-        result["tests"] = await _pp_run_tests(tests, ns, tee.getvalue())
+        result["tests"] = await _pp_run_tests(tests, ns, tee.getvalue(), code)
     sys.stdout.flush()
     result["duration"] = round((time.perf_counter() - started) * 1000)
     return json.dumps(result)

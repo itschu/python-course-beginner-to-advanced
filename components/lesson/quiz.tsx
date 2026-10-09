@@ -53,7 +53,7 @@ export function Quiz({ lessonKey, id, title, questions }: QuizProps) {
   return (
     <section
       id={`quiz-${id}`}
-      className="not-prose my-8 scroll-mt-24 rounded-xl border border-violet-300/70 bg-violet-50/50 p-4 dark:border-violet-800/60 dark:bg-violet-950/20"
+      className="my-8 scroll-mt-24 rounded-xl border border-violet-300/70 bg-violet-50/50 p-4 dark:border-violet-800/60 dark:bg-violet-950/20"
     >
       <header className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">

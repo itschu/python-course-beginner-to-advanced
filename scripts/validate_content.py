@@ -8,7 +8,7 @@ For each lesson file this script:
     otherwise the tests don't check anything).
 
 Code runs through public/pyodide-harness.py, the same harness the browser uses,
-with the working directory set to public/ so "data/..." paths resolve. Threads
+in a temporary working directory where "data/" points at public/data. Threads
 and network access are disabled to mimic the browser (Pyodide has neither).
 
 Usage:  python scripts/validate_content.py [--phase SLUG] [-k TEXT] [--verbose]
@@ -27,6 +27,7 @@ import runpy
 import signal
 import socket
 import sys
+import tempfile
 import threading
 import time
 from dataclasses import dataclass, field
@@ -306,8 +307,9 @@ def main() -> int:
 
     counts = {"lessons": len(lessons), "cells": 0, "exercises": 0}
     if not args.no_run:
-        os.chdir(PUBLIC)
-        sys.path.insert(0, str(PUBLIC))
+        workdir = Path(tempfile.mkdtemp(prefix="pypath-validate-"))
+        (workdir / "data").symlink_to(PUBLIC / "data", target_is_directory=True)
+        os.chdir(workdir)
         sandbox_like_browser()
         harness = runpy.run_path(str(PUBLIC / "pyodide-harness.py"))
         for lesson in lessons:
