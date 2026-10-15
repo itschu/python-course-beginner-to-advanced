@@ -3,6 +3,26 @@ name = "match-predictions-api"
 version = "1.0.0"
 description = "Companion project for Phase 8 of the PyPath course: a FastAPI service that serves a football goal model."
 requires-python = ">=3.12"
+# Keep in step with requirements.txt (used by pip and the Dockerfile). Vercel installs from this list.
+dependencies = [
+    "fastapi==0.136.*",
+    "uvicorn[standard]==0.38.*",
+    "pydantic==2.12.*",
+    "pydantic-settings==2.15.*",
+    "sqlalchemy==2.0.*",
+    "numpy==2.4.*",
+    "pandas==3.0.*",
+    "scipy==1.18.*",
+    "scikit-learn==1.8.*",
+    "joblib==1.6.*",
+]
+
+[dependency-groups]
+dev = [
+    "httpx==0.28.*",
+    "pytest==9.0.*",
+    "anyio==4.*",
+]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

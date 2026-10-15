@@ -156,8 +156,8 @@ email/password, plus optional "Continue with GitHub".
 
 ### Deploy to Vercel
 
-1. Import this repository in Vercel. `vercel.json` sets the framework to Next.js, so the build works even if the
-   project's Framework Preset was set to something else (such as "Services"). It deploys and works
+1. Import this repository in Vercel. `vercel.json` declares two Vercel Services: the Next.js site and the
+   FastAPI backend (served under `/match-api`), so set the project's Framework Preset to "Services". It deploys and works
    straight away with browser-only progress.
 2. In the Vercel project, open **Storage** and add a **Neon** Postgres database (free tier). This sets
    `DATABASE_URL` for you.
