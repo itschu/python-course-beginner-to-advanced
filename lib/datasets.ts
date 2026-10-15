@@ -55,6 +55,14 @@ export const datasets: Dataset[] = [
     synthetic: true,
   },
   {
+    file: "gestures.csv",
+    title: "Accelerometer gestures",
+    description:
+      "240 windows of wrist accelerometer data (1.6 s at 25 Hz, x, y and z in g), each labelled idle, wave, shake or circle. For the TinyML lessons: features, a tiny classifier and int8 quantization.",
+    columns: "window, gesture, t_ms, ax, ay, az",
+    synthetic: true,
+  },
+  {
     file: "reviews.csv",
     title: "Product reviews",
     description: "Short product reviews labelled positive or negative. For text classification.",

@@ -263,6 +263,61 @@ def make_reviews() -> pd.DataFrame:
     return pd.DataFrame(rows, columns=["review", "sentiment"])
 
 
+def make_gestures() -> pd.DataFrame:
+    """Accelerometer windows for the Phase 13 TinyML lessons.
+
+    Each window is 1.6 s at 25 Hz (40 samples) of x, y, z acceleration in g from a
+    wrist-worn sensor, labelled idle, wave, shake or circle. Each window has its own
+    random wrist orientation, gesture speed and size, like different people.
+    """
+    rng = np.random.default_rng(13)
+    rate_hz, n = 25, 40
+    t = np.arange(n) / rate_hz
+    rows = []
+    window = 0
+    for gesture in ["idle", "wave", "shake", "circle"]:
+        for _ in range(60):
+            # wrist orientation: how gravity (1 g) splits between the axes
+            tilt = rng.normal(0, 0.25)
+            roll = rng.normal(0, 0.25)
+            gravity = np.array([math.sin(tilt), math.sin(roll) * math.cos(tilt), math.cos(roll) * math.cos(tilt)])
+            ax = np.full(n, gravity[0])
+            ay = np.full(n, gravity[1])
+            az = np.full(n, gravity[2])
+            phase = rng.uniform(0, 2 * math.pi)
+            if gesture == "idle":
+                # small fidgets: a slow sway at a random speed
+                f, a = rng.uniform(0.2, 3.0), rng.uniform(0.0, 0.12)
+                ax = ax + a * np.sin(2 * math.pi * f * t + phase)
+                ay = ay + 0.5 * a * np.cos(2 * math.pi * f * t + phase)
+            elif gesture == "wave":
+                f, a = rng.uniform(1.0, 2.2), rng.uniform(0.2, 0.8)
+                ax = ax + a * np.sin(2 * math.pi * f * t + phase)
+                ay = ay + rng.uniform(0.0, 0.25) * a * np.sin(2 * math.pi * f * t + phase + 0.5)
+                az = az + 0.25 * a * np.sin(4 * math.pi * f * t + phase)
+            elif gesture == "shake":
+                f, a = rng.uniform(3.5, 7.0), rng.uniform(0.4, 1.4)
+                ax = ax + a * np.sin(2 * math.pi * f * t + phase)
+                ay = ay + rng.uniform(0.1, 0.5) * a * np.sin(2 * math.pi * f * t + phase + 1.0)
+            else:  # circle
+                f, a = rng.uniform(0.6, 1.4), rng.uniform(0.25, 0.7)
+                ax = ax + a * np.sin(2 * math.pi * f * t + phase)
+                ay = ay + rng.uniform(0.4, 1.0) * a * np.cos(2 * math.pi * f * t + phase)
+            noise = rng.uniform(0.02, 0.08)
+            ax = ax + rng.normal(0, noise, n)
+            ay = ay + rng.normal(0, noise, n)
+            az = az + rng.normal(0, noise, n)
+            for i in range(n):
+                rows.append([window, gesture, int(round(t[i] * 1000)), round(float(ax[i]), 3),
+                             round(float(ay[i]), 3), round(float(az[i]), 3)])
+            window += 1
+    df = pd.DataFrame(rows, columns=["window", "gesture", "t_ms", "ax", "ay", "az"])
+    # shuffle the windows (keeping each window's samples together and in order)
+    order = rng.permutation(window)
+    df["window"] = order[df["window"]]
+    return df.sort_values(["window", "t_ms"]).reset_index(drop=True)
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     outputs = {
@@ -272,6 +327,7 @@ def main() -> None:
         "customers_messy.csv": make_customers(),
         "houses.csv": make_houses(),
         "reviews.csv": make_reviews(),
+        "gestures.csv": make_gestures(),
     }
     for name, df in outputs.items():
         df.to_csv(OUT / name, index=False)
