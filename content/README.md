@@ -14,6 +14,7 @@ summary: One sentence shown under the title and in lesson lists.
 minutes: 40
 kind: lesson        # lesson | project | checkpoint
 colab: notebooks/07-02-pytorch-tensors.ipynb   # optional "Open in Colab" button
+language: rust      # optional: the language of this lesson's exercises (python by default)
 ---
 ```
 
@@ -45,6 +46,40 @@ Each cell runs in a fresh namespace, so examples must be self-contained. Files i
 `public/data/` can be opened as `"data/<name>"`. `input()` is not available in the browser.
 Write FastAPI endpoints as `async def` (the browser has no threads).
 
+### Rust cells
+
+````markdown
+```rust
+fn main() {
+    println!("Every rust block is an editable cell that runs on the Rust Playground");
+}
+```
+
+```rust static
+// Highlighted only: code that needs crates from crates.io, or a microcontroller
+```
+````
+
+`expect-error` and `expect-warning` work as for Python. Runnable Rust needs a `fn main()`, may only use the
+standard library, and must compile without warnings (the validator compiles it with the local `rustc`, edition 2024).
+A lesson can mix Python and Rust cells.
+
+### The MicroPython simulator
+
+Python cells can `import machine`, `micropython` and `pico_sim`, and use `time.sleep_ms`, `time.ticks_ms` and
+`time.ticks_diff`, to run MicroPython-style code on a simulated Raspberry Pi Pico (see `public/micropython-sim.py`).
+Time is virtual: `sleep_ms(1000)` returns instantly and advances the simulated clock, firing timers and pin
+interrupts on the way. The board is reset before every run. Useful `pico_sim` calls in lessons and tests:
+
+| Call | Does |
+| --- | --- |
+| `press(pin, at_ms, hold_ms=100, bounce=False)` | schedule a button press (active low) |
+| `set_adc(pin, volts_or_fn, noise=0)` | voltage on GP26-28 (a function receives the time in seconds) |
+| `set_temperature(c)`, `set_acceleration(x, y, z)` | the TMP102 (I2C 0x48) and MPU-6050 (0x68) |
+| `uart_feed(id, text)`, `uart_output(id)` | data arriving on / written to a UART |
+| `history(pin)`, `level(pin)`, `waveform(pin, step_ms)` | what a pin did |
+| `pwm_duty(pin)`, `now_ms()`, `i2c_device(addr)` | inspect PWM, the clock and simulated devices |
+
 ### Exercises
 
 ```markdown
@@ -75,6 +110,37 @@ Probability is the reciprocal of decimal odds.
 Tests are `test_*` functions (sync or async) that run after the learner's code, in the same
 namespace. The docstring's first line is shown to the learner. `output` holds everything the
 learner's code printed, and `source` holds the learner's code as a string. The validator checks that the solution passes and the starter fails.
+
+#### Rust exercises
+
+In a lesson with `language: rust`, exercises use the same sections, but the starter and solution are Rust, and the
+tests are `#[test]` functions. The checker appends the tests to the learner's code inside
+`#[cfg(test)] mod tests { use super::*; ... }` and runs `cargo test`. The `///` comment above each test is shown to
+the learner. Use `todo!()` in starters so they compile and fail the tests; a starter that doesn't compile also
+counts as failing (useful for "fix the compiler error" exercises).
+
+```markdown
+:::exercise rust-hello Your first Rust function
+Write `greeting(name: &str) -> String`.
+
+@@starter
+fn greeting(name: &str) -> String {
+    todo!()
+}
+
+@@solution
+fn greeting(name: &str) -> String {
+    format!("Hello, {name}!")
+}
+
+@@tests
+/// Greets Ada
+#[test]
+fn greets_ada() {
+    assert_eq!(greeting("Ada"), "Hello, Ada!");
+}
+:::
+```
 
 ### Quizzes
 

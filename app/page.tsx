@@ -1,4 +1,4 @@
-import { ArrowRight, Code2, FlaskConical, Hammer, Rocket, Server } from "lucide-react";
+import { ArrowRight, Code2, Cpu, FlaskConical, Hammer, Rocket } from "lucide-react";
 import Link from "next/link";
 
 import { ContinueCard } from "@/components/continue-card";
@@ -9,7 +9,7 @@ const STEPS = [
   {
     icon: Code2,
     title: "Read & run",
-    text: "Short explanations with real code you can edit and run instantly. Python runs in your browser; there's nothing to install.",
+    text: "Short explanations with real code you can edit and run instantly: Python and a simulated microcontroller in your browser, Rust on the Rust Playground. Nothing to install.",
   },
   {
     icon: FlaskConical,
@@ -19,12 +19,12 @@ const STEPS = [
   {
     icon: Hammer,
     title: "Build projects",
-    text: "Each phase ends with a project and a checkpoint test, building towards your own value-betting model.",
+    text: "Each phase ends with a project and a checkpoint test: a value-betting model, a league engine in Rust, weather-station firmware, a gesture recogniser.",
   },
   {
-    icon: Server,
+    icon: Cpu,
     title: "Ship it",
-    text: "Learn FastAPI to serve your models as APIs: the backend skills that turn a notebook into a product.",
+    text: "Serve models from a FastAPI backend, speed them up with Rust, and deploy them as int8 firmware on a microcontroller.",
   },
 ];
 
@@ -53,16 +53,16 @@ export default function HomePage() {
             Free · runs in your browser · beginner to professional
           </span>
           <h1 className="mt-6 text-4xl font-bold tracking-tight text-zinc-900 sm:text-6xl dark:text-white">
-            Learn Python.
+            Learn Python and Rust.
             <br />
             <span className="bg-gradient-to-r from-blue-600 to-sky-500 bg-clip-text text-transparent">
-              Build your own ML models.
+              Run your models anywhere.
             </span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-zinc-600 dark:text-zinc-400">
             A complete path from your first <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-base dark:bg-zinc-800">print(&quot;hello&quot;)</code> to
-            training, evaluating and serving machine learning models with a Python backend. Every lesson has code to run,
-            exercises with automatic tests, and quizzes.
+            training and serving your own machine learning models, then on to Rust, embedded systems and models running on
+            microcontrollers. Every lesson has code to run, exercises with automatic tests, and quizzes.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             {firstLesson && (
@@ -111,7 +111,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-5xl px-4">
           <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">The roadmap</h2>
           <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-            About an hour a day for nine to ten months. Go faster or slower: your progress is saved.
+            About an hour a day for fourteen to sixteen months. Go faster or slower: your progress is saved.
           </p>
           <ol className="mt-8 space-y-3">
             {phases.map((phase) => {
@@ -153,8 +153,9 @@ export default function HomePage() {
           <div className="flex-1">
             <h2 className="text-xl font-bold text-zinc-900 dark:text-white">Learning with a goal</h2>
             <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-              The projects build towards a football value-betting model, because a concrete goal makes every lesson
-              stick. Along the way you&apos;ll also work with housing prices, medical data, images and text, so your
+              The Python projects build towards a football value-betting model, and the second half takes models off the
+              server and onto devices: you&apos;ll port the match model to Rust and ship a gesture recogniser inside
+              microcontroller firmware. Concrete goals make every lesson stick. Along the way you&apos;ll also work with housing prices, medical data, images and text, so your
               skills transfer to any ML job. We&apos;re honest about the maths too: you&apos;ll learn why most betting
               and trading models lose money, and how to evaluate yours without fooling yourself.
             </p>

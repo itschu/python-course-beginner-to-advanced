@@ -1,11 +1,11 @@
 ---
-title: "Final exam: Python to production ML"
+title: "Final exam, part 1: Python to production ML"
 summary: One test across the whole course - Python, pandas, statistics, machine learning, betting models, deep learning and backends - followed by where to go from here.
 minutes: 120
 kind: checkpoint
 ---
 
-This is the last test. It covers every phase, from Python basics to serving models. Take it without looking back at the lessons first; afterwards, revisit anything you got wrong.
+This is the first of two final tests. It covers the Python half of the course (Phases 1 to 8), from Python basics to serving models; part 2 covers Rust, embedded systems and edge AI. Take it without looking back at the lessons first; afterwards, revisit anything you got wrong.
 
 **Passing standard:** at least four of the five exercises pass, and you score at least 16/20 on the quiz.
 
@@ -397,19 +397,6 @@ async def test_validation():
     assert (await post({"home": 2.1, "draw": 3.4})).status_code == 422
 :::
 
-## You made it
+## Next: part 2
 
-If you've worked through the whole course, you've gone from `print("Hello")` to:
-
-- writing clean, tested, packaged **Python**;
-- cleaning, exploring and visualising data with **pandas**;
-- the **maths and statistics** behind the models, and how to judge evidence;
-- **classical ML** with scikit-learn: pipelines, cross-validation, boosting, tuning;
-- **applied ML** on betting and FX data: goal models, calibration, blending, value bets, honest backtests;
-- **deep learning** from scratch and in PyTorch: CNNs, sequences, transformers, transfer learning;
-- **backends** with FastAPI: validation, databases, authentication, tests, serving models and Docker;
-- and a **capstone** system with a pipeline, weekly retraining, champion/challenger evaluation and monitoring.
-
-Most importantly, you've learned to be **skeptical of your own results**: to ask what was known at prediction time, what the baseline is, and whether a difference is bigger than luck. That habit separates professionals from people who just fit models.
-
-**Where next:** follow the 90-day plan from the last lesson. Build something of your own, enter a competition, read a paper a month, and write about what you learn. Good luck.
+When you've passed this part, continue to part 2: Rust, embedded systems and edge AI.

@@ -29,6 +29,9 @@ export interface PhaseMeta {
 
 export type LessonKind = "lesson" | "project" | "checkpoint";
 
+/** Languages that lessons can run: Python in the browser (Pyodide), Rust on the Rust Playground. */
+export type CodeLanguage = "python" | "rust";
+
 export interface LessonMeta {
   /** "<phase-slug>/<lesson-slug>" – stable id used for progress tracking */
   key: string;
@@ -41,6 +44,8 @@ export interface LessonMeta {
   kind: LessonKind;
   exerciseIds: string[];
   quizIds: string[];
+  /** Languages of the runnable cells and exercises in this lesson. */
+  languages: CodeLanguage[];
 }
 
 export interface QuizOption {
@@ -57,12 +62,13 @@ export interface QuizQuestion {
 
 export type Block =
   | { type: "markdown"; html: string }
-  | { type: "code"; id: string; code: string; runnable: true }
+  | { type: "code"; id: string; code: string; runnable: true; language: CodeLanguage }
   | { type: "static-code"; html: string }
   | {
       type: "exercise";
       id: string;
       title: string;
+      language: CodeLanguage;
       promptHtml: string;
       starter: string;
       solution: string;

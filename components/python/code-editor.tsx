@@ -1,11 +1,13 @@
 "use client";
 
 import { python } from "@codemirror/lang-python";
+import { rust } from "@codemirror/lang-rust";
 import { indentUnit } from "@codemirror/language";
 import CodeMirror, { EditorView } from "@uiw/react-codemirror";
 import { useMemo, type KeyboardEvent } from "react";
 
 import { useIsDark } from "@/components/use-is-dark";
+import type { CodeLanguage } from "@/lib/types";
 
 interface CodeEditorProps {
   value: string;
@@ -15,6 +17,7 @@ interface CodeEditorProps {
   minHeight?: string;
   maxHeight?: string;
   ariaLabel?: string;
+  language?: CodeLanguage;
 }
 
 const baseTheme = EditorView.theme({
@@ -31,19 +34,22 @@ export default function CodeEditor({
   onReady,
   minHeight = "3rem",
   maxHeight = "32rem",
-  ariaLabel = "Python code editor",
+  ariaLabel,
+  language = "python",
 }: CodeEditorProps) {
   const isDark = useIsDark();
 
   const extensions = useMemo(
     () => [
-      python(),
+      language === "rust" ? rust() : python(),
       indentUnit.of("    "),
       baseTheme,
       EditorView.lineWrapping,
-      EditorView.contentAttributes.of({ "aria-label": ariaLabel }),
+      EditorView.contentAttributes.of({
+        "aria-label": ariaLabel ?? `${language === "rust" ? "Rust" : "Python"} code editor`,
+      }),
     ],
-    [ariaLabel],
+    [ariaLabel, language],
   );
 
   // Ctrl/⌘ + Enter or Shift + Enter runs the code. Handled in the capture phase so

@@ -2,14 +2,21 @@
 
 For each lesson file this script:
   * checks the frontmatter and block syntax (mirrors lib/lesson-parser.ts),
-  * runs every runnable ```python block (it must not raise, unless marked expect-error),
+  * runs every runnable ```python and ```rust block (it must not fail, unless marked expect-error),
   * runs each exercise's solution against its tests (all must pass),
   * runs each exercise's starter code against its tests (at least one must fail,
     otherwise the tests don't check anything).
 
-Code runs through public/pyodide-harness.py, the same harness the browser uses,
-in a temporary working directory where "data/" points at public/data. Threads
-and network access are disabled to mimic the browser (Pyodide has neither).
+Python runs through public/pyodide-harness.py (plus the MicroPython simulator in
+public/micropython-sim.py), the same code the browser uses, in a temporary working
+directory where "data/" points at public/data. Threads and network access are
+disabled to mimic the browser (Pyodide has neither).
+
+Rust is compiled with the local rustc (edition 2024, debug mode, like the Rust
+Playground the browser uses). Rust exercises are graded exactly as in
+lib/rust-runner.ts: the code, then the tests inside `mod tests`, run as a test
+binary. Rust code may only use the standard library (mark anything needing
+crates or hardware as ```rust static). Runnable Rust must compile without warnings.
 
 Usage:  python scripts/validate_content.py [--phase SLUG] [-k TEXT] [--verbose]
 Needs:  numpy pandas scikit-learn scipy matplotlib statsmodels pydantic fastapi httpx sqlalchemy
@@ -19,13 +26,16 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import concurrent.futures
 import io
 import json
 import os
 import re
 import runpy
+import shutil
 import signal
 import socket
+import subprocess
 import sys
 import tempfile
 import threading
@@ -44,6 +54,9 @@ CALLOUTS = {"note", "tip", "warning", "colab", "info"}
 KINDS = {"lesson", "project", "checkpoint"}
 TIMEOUT_SECONDS = 180
 STARTER_SECONDS = 5
+RUST_EDITION = "2024"
+RUST_RUN_SECONDS = 20
+LANGUAGES = {"python", "rust"}
 
 
 @dataclass
@@ -61,6 +74,7 @@ class Lesson:
     path: Path
     meta: dict
     code_blocks: list[tuple[int, str, list[str]]] = field(default_factory=list)
+    rust_blocks: list[tuple[int, str, list[str]]] = field(default_factory=list)
     exercises: list[Exercise] = field(default_factory=list)
     quiz_ids: list[str] = field(default_factory=list)
 
@@ -115,6 +129,8 @@ def parse_lesson(path: Path) -> Lesson:
             raise ParseError(f"{path}: frontmatter is missing '{key}'")
     if meta.get("kind", "lesson") not in KINDS:
         raise ParseError(f"{path}: unknown kind {meta['kind']!r}")
+    if meta.get("language", "python") not in LANGUAGES:
+        raise ParseError(f"{path}: language must be python or rust")
     lesson = Lesson(path=path, meta=meta)
     lines = body.split("\n")
     i = 0
@@ -130,6 +146,8 @@ def parse_lesson(path: Path) -> Lesson:
                 raise ParseError(f"{path}:{i + offset}: unclosed code fence")
             if lang in ("python", "py"):
                 lesson.code_blocks.append((i + offset, "\n".join(lines[i + 1 : j]), info.split()))
+            elif lang in ("rust", "rs"):
+                lesson.rust_blocks.append((i + offset, "\n".join(lines[i + 1 : j]), info.split()))
             i = j + 1
             continue
         directive = DIRECTIVE_RE.match(line)
@@ -228,6 +246,128 @@ def parse_quiz(rest: str, body: list[str], path: Path, line: int) -> str:
     return parts[0]
 
 
+# ---------------------------------------------------------------- rust
+
+
+def build_test_crate(code: str, tests: str) -> str:
+    """Mirror of buildTestCrate in lib/rust-runner.ts."""
+    indented = "\n".join("    " + l if l.strip() else l for l in tests.split("\n"))
+    return f"{code}\n\n#[cfg(test)]\nmod tests {{\n    #![allow(unused_imports)]\n    use super::*;\n\n{indented}\n}}\n"
+
+
+TEST_LINE_RE = re.compile(r"^test tests::(\w+)(?: - should panic)? \.\.\. (ok|FAILED|ignored)", re.M)
+
+
+def rust_compile(source: str, workdir: Path, test: bool) -> tuple[bool, str, Path]:
+    workdir.mkdir(parents=True, exist_ok=True)
+    # Same file names as the Rust Playground: src/lib.rs for tests, src/main.rs for programs.
+    src = workdir / ("lib.rs" if test else "main.rs")
+    src.write_text(source)
+    out = workdir / "prog"
+    cmd = ["rustc", "--edition", RUST_EDITION, "-C", "debuginfo=0", "-o", str(out), str(src)]
+    if test:
+        cmd.insert(1, "--test")
+    proc = subprocess.run(cmd, capture_output=True, text=True, cwd=workdir, timeout=300)
+    return proc.returncode == 0, proc.stderr, out
+
+
+def rust_run(binary: Path, args: list[str] | None = None) -> tuple[int | None, str, str, float]:
+    t0 = time.perf_counter()
+    try:
+        proc = subprocess.run([str(binary), *(args or [])], capture_output=True, text=True, timeout=RUST_RUN_SECONDS)
+        return proc.returncode, proc.stdout, proc.stderr, time.perf_counter() - t0
+    except subprocess.TimeoutExpired:
+        return None, "", f"timed out after {RUST_RUN_SECONDS}s", time.perf_counter() - t0
+
+
+def has_warnings(stderr: str) -> bool:
+    return re.search(r"^warning", stderr, flags=re.M) is not None
+
+
+def check_rust_cell(rel: Path, line: int, code: str, info: list[str], workdir: Path) -> list[str]:
+    errors = []
+    expect_error = "expect-error" in info
+    ok, stderr, binary = rust_compile(code, workdir, test=False)
+    if not ok:
+        if not expect_error:
+            errors.append(f"{rel}:{line}: rust cell doesn't compile:\n{stderr[-2500:]}")
+        return errors
+    if has_warnings(stderr) and "expect-warning" not in info:
+        errors.append(f"{rel}:{line}: rust cell compiles with warnings learners would see:\n{stderr[-2000:]}")
+    code_, out, err, _ = rust_run(binary)
+    if (code_ == 0) == expect_error:
+        what = "should fail but ran fine" if expect_error else f"failed (exit {code_}):\n{err[-1500:]}"
+        errors.append(f"{rel}:{line}: rust cell {what}")
+    return errors
+
+
+def run_rust_tests(code: str, tests: str, workdir: Path) -> tuple[bool, str, dict[str, bool], float]:
+    ok, stderr, binary = rust_compile(build_test_crate(code, tests), workdir, test=True)
+    if not ok:
+        return False, stderr, {}, 0.0
+    _, out, err, seconds = rust_run(binary, ["--test-threads=1"])
+    results = {m.group(1): m.group(2) == "ok" for m in TEST_LINE_RE.finditer(out) if m.group(2) != "ignored"}
+    return True, stderr + err, results, seconds
+
+
+def check_rust_exercise(rel: Path, ex: "Exercise", workdir: Path) -> list[str]:
+    errors = []
+    compiled, stderr, results, _ = run_rust_tests(ex.solution, ex.tests, workdir / "solution")
+    if not compiled:
+        errors.append(f"{rel}:{ex.line}: exercise {ex.id}: solution + tests don't compile:\n{stderr[-2500:]}")
+    else:
+        if re.search(r"^warning", stderr, flags=re.M):
+            errors.append(f"{rel}:{ex.line}: exercise {ex.id}: solution compiles with warnings:\n{stderr[-2000:]}")
+        if not results:
+            errors.append(f"{rel}:{ex.line}: exercise {ex.id}: no tests ran")
+        elif not all(results.values()):
+            failed = [n for n, passed in results.items() if not passed]
+            errors.append(f"{rel}:{ex.line}: exercise {ex.id}: solution fails tests {failed}")
+    # A starter that doesn't compile counts as failing. Most starters use todo!() so learners
+    # see test results, but some exercises are about fixing a compile error.
+    compiled, stderr, results, seconds = run_rust_tests(ex.starter, ex.tests, workdir / "starter")
+    if compiled and results and all(results.values()):
+        errors.append(f"{rel}:{ex.line}: exercise {ex.id}: starter code already passes every test")
+    elif compiled and seconds > STARTER_SECONDS:
+        errors.append(f"{rel}:{ex.line}: exercise {ex.id}: the starter takes over {STARTER_SECONDS}s to fail")
+    return errors
+
+
+def validate_rust(lessons: list["Lesson"], verbose: bool) -> tuple[list[str], int, int]:
+    """Compile and run every Rust cell and exercise in parallel (before threads are disabled)."""
+    jobs = []
+    for lesson in lessons:
+        rel = lesson.path.relative_to(ROOT)
+        for line, code, info in lesson.rust_blocks:
+            if "static" not in info:
+                jobs.append(("cell", rel, line, code, info))
+        if lesson.meta.get("language", "python") == "rust":
+            for ex in lesson.exercises:
+                jobs.append(("exercise", rel, ex.line, ex, None))
+    if not jobs:
+        return [], 0, 0
+    if shutil.which("rustc") is None:
+        return [f"{len(jobs)} Rust cells/exercises need rustc: install Rust from https://rustup.rs"], 0, 0
+    base = Path(tempfile.mkdtemp(prefix="pypath-rust-"))
+
+    def work(index_job):
+        index, (kind, rel, line, payload, info) = index_job
+        workdir = base / str(index)
+        if kind == "cell":
+            return check_rust_cell(rel, line, payload, info, workdir)
+        return check_rust_exercise(rel, payload, workdir)
+
+    errors: list[str] = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=os.cpu_count() or 4) as pool:
+        for result in pool.map(work, enumerate(jobs)):
+            errors.extend(result)
+    shutil.rmtree(base, ignore_errors=True)
+    cells = sum(1 for j in jobs if j[0] == "cell")
+    if verbose:
+        print(f"  rust: {cells} cells, {len(jobs) - cells} exercises", file=sys.stderr)
+    return errors, cells, len(jobs) - cells
+
+
 # ---------------------------------------------------------------- execution
 
 
@@ -312,7 +452,7 @@ def export_jobs(lessons: list[Lesson], path: Path, errors: list[str]) -> int:
             if "static" not in info:
                 jobs.append({"where": f"{rel}:{line}", "code": code, "tests": None,
                              "expect": "error" if "expect-error" in info else "ok"})
-        for ex in lesson.exercises:
+        for ex in lesson.exercises if lesson.meta.get("language", "python") == "python" else []:
             jobs.append({"where": f"{rel}:{ex.line} {ex.id} (solution)", "code": ex.solution, "tests": ex.tests, "expect": "pass"})
             jobs.append({"where": f"{rel}:{ex.line} {ex.id} (starter)", "code": ex.starter, "tests": ex.tests, "expect": "fail"})
     path.write_text(json.dumps(jobs))
@@ -366,11 +506,16 @@ def main() -> int:
 
     counts = {"lessons": len(lessons), "cells": 0, "exercises": 0}
     if not args.no_run:
+        rust_errors, rust_cells, rust_exercises = validate_rust(lessons, args.verbose)
+        errors.extend(rust_errors)
+        counts["cells"] += rust_cells
+        counts["exercises"] += rust_exercises
         workdir = Path(tempfile.mkdtemp(prefix="pypath-validate-"))
         (workdir / "data").symlink_to(PUBLIC / "data", target_is_directory=True)
         os.chdir(workdir)
         sandbox_like_browser()
         harness = runpy.run_path(str(PUBLIC / "pyodide-harness.py"))
+        runpy.run_path(str(PUBLIC / "micropython-sim.py"), run_name="micropython_sim")
         for lesson in lessons:
             rel = lesson.path.relative_to(ROOT)
             started = time.perf_counter()
@@ -388,7 +533,7 @@ def main() -> int:
                 if "expect-warning" not in info:
                     for w in result["warnings"]:
                         errors.append(f"{rel}:{line}: code cell shows learners a warning: {w}")
-            for ex in lesson.exercises:
+            for ex in lesson.exercises if lesson.meta.get("language", "python") == "python" else []:
                 counts["exercises"] += 1
                 result, out = run(harness, ex.solution, ex.tests)
                 for d in result["deprecations"]:

@@ -129,7 +129,7 @@ git add .
 git commit -m "Start betting tools project"
 ```
 
-Then create a repository on GitHub and push it. Your GitHub profile becomes your portfolio, and Phase 9 shows you how to make it shine.
+Then create a repository on GitHub and push it. Your GitHub profile becomes your portfolio, and Phase 14 shows you how to make it shine.
 
 ## Checklist
 

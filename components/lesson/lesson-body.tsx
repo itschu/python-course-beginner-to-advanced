@@ -50,7 +50,7 @@ export function LessonBody({ blocks, lessonKey }: { blocks: Block[]; lessonKey: 
           case "static-code":
             return <div key={i} className="code-block my-5" dangerouslySetInnerHTML={{ __html: block.html }} />;
           case "code":
-            return <CodeCell key={i} code={block.code} />;
+            return <CodeCell key={i} code={block.code} language={block.language} />;
           case "exercise":
             return (
               <Exercise
@@ -58,6 +58,7 @@ export function LessonBody({ blocks, lessonKey }: { blocks: Block[]; lessonKey: 
                 lessonKey={lessonKey}
                 id={block.id}
                 title={block.title}
+                language={block.language}
                 promptHtml={block.promptHtml}
                 starter={block.starter}
                 solution={block.solution}

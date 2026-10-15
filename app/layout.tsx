@@ -13,7 +13,7 @@ import { githubUrl, site } from "@/lib/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: `${site.name} · Python to Machine Learning`, template: `%s · ${site.name}` },
+  title: { default: `${site.name} · Python, Rust, ML and Embedded`, template: `%s · ${site.name}` },
   description: site.tagline,
 };
 

@@ -60,6 +60,9 @@ async function init() {
   pyodide.setStderr({ write: (bytes) => writeOutput("stderr", bytes) });
   const harness = await fetch(new URL("pyodide-harness.py", self.location.href));
   await pyodide.runPythonAsync(await harness.text());
+  // MicroPython-style machine/pico_sim modules for the embedded lessons.
+  const sim = await fetch(new URL("micropython-sim.py", self.location.href));
+  if (sim.ok) pyodide.runPython(await sim.text(), { globals: pyodide.toPy({ __name__: "micropython_sim" }) });
   const python = pyodide.runPython("import sys; sys.version.split()[0]");
   post({ type: "ready", python, pyodide: pyodide.version });
 }

@@ -3,6 +3,8 @@
 import { Play, RotateCcw, Square } from "lucide-react";
 import { useState } from "react";
 
+import type { CodeLanguage } from "@/lib/types";
+
 import Editor from "./editor";
 import { OutputPanel } from "./output-panel";
 import { useCodeRun } from "./use-code-run";
@@ -29,9 +31,9 @@ export function RunButton({
   );
 }
 
-export function CodeCell({ code: initialCode }: { code: string }) {
+export function CodeCell({ code: initialCode, language = "python" }: { code: string; language?: CodeLanguage }) {
   const [code, setCode] = useState(initialCode);
-  const run = useCodeRun();
+  const run = useCodeRun(language);
   const execute = () => {
     if (!run.running) void run.execute(code);
   };
@@ -40,7 +42,7 @@ export function CodeCell({ code: initialCode }: { code: string }) {
     <div className="my-6 overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
       <div className="flex items-center justify-between gap-2 border-b border-zinc-200 bg-zinc-50 px-3 py-1.5 dark:border-zinc-800 dark:bg-zinc-900/80">
         <span className="font-mono text-xs font-medium text-zinc-500 dark:text-zinc-400">
-          python · editable
+          {language} · editable{language === "rust" ? " · runs on the Rust Playground" : ""}
         </span>
         <div className="flex items-center gap-1.5">
           {code !== initialCode && (
@@ -56,7 +58,7 @@ export function CodeCell({ code: initialCode }: { code: string }) {
           <RunButton running={run.running} onRun={execute} onStop={run.stop} />
         </div>
       </div>
-      <Editor value={code} onChange={setCode} onRun={execute} />
+      <Editor value={code} onChange={setCode} onRun={execute} language={language} />
       <OutputPanel run={run} runnerStatus={run.runner.status} runnerMessage={run.runner.message} />
     </div>
   );

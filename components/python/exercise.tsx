@@ -4,6 +4,7 @@ import { CheckCircle2, Eye, FlaskConical, Lightbulb, RotateCcw } from "lucide-re
 import { useEffect, useRef, useState } from "react";
 
 import { useProgress } from "@/components/progress/progress-provider";
+import type { CodeLanguage } from "@/lib/types";
 import { RunButton } from "./code-cell";
 import Editor from "./editor";
 import { OutputPanel } from "./output-panel";
@@ -13,6 +14,7 @@ interface ExerciseProps {
   lessonKey: string;
   id: string;
   title: string;
+  language: CodeLanguage;
   promptHtml: string;
   starter: string;
   solution: string;
@@ -32,7 +34,7 @@ export function Exercise(props: ExerciseProps) {
   const [showSolution, setShowSolution] = useState(false);
   const [showTests, setShowTests] = useState(false);
   const [justPassed, setJustPassed] = useState(false);
-  const run = useCodeRun();
+  const run = useCodeRun(props.language);
   const edited = useRef(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -96,7 +98,14 @@ export function Exercise(props: ExerciseProps) {
       />
 
       <div className="border-t border-zinc-200 dark:border-zinc-800">
-        <Editor value={code} onChange={onChange} onRun={check} minHeight="6rem" ariaLabel={`Code for ${props.title}`} />
+        <Editor
+          value={code}
+          onChange={onChange}
+          onRun={check}
+          minHeight="6rem"
+          ariaLabel={`Code for ${props.title}`}
+          language={props.language}
+        />
       </div>
 
       <div className="flex flex-wrap items-center gap-1.5 border-t border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900/80">
@@ -162,8 +171,18 @@ export function Exercise(props: ExerciseProps) {
       {showTests && (
         <div className="border-t border-zinc-200 px-4 py-3 dark:border-zinc-800">
           <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
-            These tests run after your code. Each <code>test_</code> function checks one thing. Reading tests is a
-            professional skill too.
+            {props.language === "rust" ? (
+              <>
+                These tests are compiled with your code inside a <code>mod tests</code> and run with{" "}
+                <code>cargo test</code>. Each <code>#[test]</code> function checks one thing. Reading tests is a
+                professional skill too.
+              </>
+            ) : (
+              <>
+                These tests run after your code. Each <code>test_</code> function checks one thing. Reading tests is a
+                professional skill too.
+              </>
+            )}
           </p>
           <pre className="m-0 overflow-x-auto rounded-lg bg-zinc-100 p-3 font-mono text-xs dark:bg-zinc-950">{props.tests}</pre>
         </div>
