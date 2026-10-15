@@ -1,12 +1,19 @@
-# PyPath: Python to Machine Learning
+# PyPath: Python, Rust, Machine Learning and Embedded Systems
 
-A Next.js site that teaches Python from zero to professional machine learning, with a backend track
-(FastAPI) for serving models. Every lesson has runnable code, exercises checked by automatic tests,
-and quizzes. Each phase ends with a project and a checkpoint test.
+A Next.js site that teaches Python and Rust from zero to advanced, machine learning from first principles to
+deployed models, and embedded systems, ending with your own models running inside microcontroller firmware. Every
+lesson has runnable code, exercises checked by automatic tests, and quizzes. Each phase ends with a project and a
+checkpoint test.
 
-Python runs **in the browser** with [Pyodide](https://pyodide.org/) (NumPy, pandas, scikit-learn,
-Matplotlib, SciPy, statsmodels, Pydantic, FastAPI and more), so there's no server to run code on and
-nothing for learners to install.
+Nothing needs installing to follow along:
+
+- **Python** runs **in the browser** with [Pyodide](https://pyodide.org/) (NumPy, pandas, scikit-learn, Matplotlib,
+  SciPy, statsmodels, Pydantic, FastAPI and more).
+- A **simulated Raspberry Pi Pico** runs MicroPython-style code in the browser too: the standard `machine` module
+  (pins, PWM, ADC, I2C sensors, UART, timers, watchdog) plus a `pico_sim` module to press buttons, set sensor
+  readings and inspect pin history.
+- **Rust** compiles and runs on the official [Rust Playground](https://play.rust-lang.org/); Rust exercises are
+  graded with `cargo test`.
 
 ## The course
 
@@ -20,13 +27,31 @@ nothing for learners to install.
 | 6 | Applied ML: Time Series, Betting & Trading | 10 | 28 |
 | 7 | Deep Learning with PyTorch (Colab) | 12 | 29 |
 | 8 | Python for the Backend (FastAPI) | 10 | 26 |
-| 9 | Capstone & Career | 8 | 23 |
+| 9 | Rust Foundations | 12 | 34 |
+| 10 | Professional Rust (traits, generics, lifetimes, concurrency, async, unsafe) | 12 | 24 |
+| 11 | Rust for Machine Learning (models from scratch, PyO3, deployment) | 10 | 16 |
+| 12 | Embedded Systems (electronics, MicroPython, embedded Rust, Embassy) | 12 | 27 |
+| 13 | Edge AI & TinyML (int8 models on microcontrollers) | 9 | 14 |
+| 14 | Capstone & Career (server or device capstone, two-part final exam) | 10 | 27 |
 
-96 lessons and 268 auto-graded exercises in total. The running example throughout the applied phases
-is a football prediction and value-betting system, with an EUR/USD dataset for trading; general
-examples are used everywhere else. Phase 9 puts it all together: system design, a data pipeline, a
-season-long simulation with weekly retraining, champion/challenger evaluation and monitoring, then
-portfolio, Kaggle, research papers, interviews and a final exam.
+153 lessons and 387 auto-graded exercises in total.
+
+- **Phases 1–8** take you from your first line of Python to training, evaluating and serving ML models. The running
+  example in the applied phases is a football prediction and value-betting system, with an EUR/USD dataset for
+  trading.
+- **Phases 9–10** teach Rust from zero, always compared with the Python you already know, up to professional
+  topics: traits and generics, lifetimes, iterators, smart pointers, threads, how async compiles, unsafe and FFI.
+- **Phase 11** puts Rust to work on ML: matrices, linear and logistic regression and a backpropagation network in
+  plain Rust, the Rust ML ecosystem (ndarray, Polars, linfa, Candle, Burn), PyO3 extensions, and porting the
+  Phase 5 match model to Rust with bit-for-bit checks against Python.
+- **Phase 12** covers embedded systems: electronics essentials; MicroPython on a (simulated) Pico with GPIO,
+  debouncing, interrupts, timers, state machines, ADC, PWM, I2C, SPI and UART; and embedded Rust: `no_std`, PACs,
+  HALs, `embedded-hal` drivers, typestate, Embassy and reliable firmware. The project is a weather station.
+- **Phase 13** joins the two halves: integer-only features from accelerometer data, a tiny neural network, int8
+  quantization with fixed-point requantization, export to Rust source, bit-exact integer inference in Rust, and an
+  Embassy deployment plan. The project is an end-to-end gesture recogniser.
+- **Phase 14** is the capstone (a live-season ML system, or a model shipped on a device), careers in ML,
+  embedded and Rust, and a two-part final exam.
 
 Resources for every phase (courses, books, videos, docs, tools) are listed on the site's
 **Resources** page and in [`content/curriculum.ts`](content/curriculum.ts).
@@ -47,6 +72,10 @@ Open http://localhost:3000. Progress is saved in your browser; see below to add 
 Every code example and exercise is executed by a validator that uses the same grading harness as the
 browser. For each exercise, the solution must pass all tests and the starter code must fail at least
 one. Code that prints a warning (including deprecation warnings) also fails, because learners would see it.
+
+Rust cells and exercises are compiled locally with `rustc` (edition 2024, debug mode, like the Rust Playground),
+so you need [Rust](https://rustup.rs/) installed. They may only use the standard library; anything needing crates or
+hardware is marked `rust static`. Runnable Rust must compile without warnings.
 
 ```bash
 python3 -m venv .venv
@@ -80,6 +109,8 @@ content/                Lessons (Markdown) and curriculum.ts (phases and resourc
 lib/                    Lesson parser, Markdown rendering, Python runner client, progress model
 public/pyodide-worker.js   Web worker that runs Python
 public/pyodide-harness.py  Grading harness (runs code, captures output and charts, runs tests)
+public/micropython-sim.py  Simulated Raspberry Pi Pico: machine, micropython and pico_sim modules
+lib/rust-runner.ts      Runs Rust on the Rust Playground and grades exercises with cargo test
 public/data/            Datasets lessons can open as "data/<file>"
 notebooks/              Colab notebooks for the PyTorch lessons (built from notebooks/src/)
 backend/                Companion FastAPI project for Phase 8 (its own README, tests and Dockerfile)
@@ -125,7 +156,8 @@ email/password, plus optional "Continue with GitHub".
 
 ### Deploy to Vercel
 
-1. Import this repository in Vercel (framework: Next.js, default settings). It deploys and works
+1. Import this repository in Vercel. `vercel.json` sets the framework to Next.js, so the build works even if the
+   project's Framework Preset was set to something else (such as "Services"). It deploys and works
    straight away with browser-only progress.
 2. In the Vercel project, open **Storage** and add a **Neon** Postgres database (free tier). This sets
    `DATABASE_URL` for you.
@@ -170,6 +202,7 @@ Tables: Better Auth's `user`, `session`, `account` and `verification`, plus `les
 | `BETTER_AUTH_URL` | Public URL of the site. |
 | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | Optional. Enables "Continue with GitHub". |
 | `NEXT_PUBLIC_PYODIDE_INDEX_URL` | Optional. Where to load Pyodide from (defaults to the jsDelivr CDN, v314.0.7). |
+| `NEXT_PUBLIC_RUST_PLAYGROUND_URL` | Optional. Where Rust code is compiled (defaults to `https://play.rust-lang.org`). Any server with the Playground's `/execute` API works. |
 | `NEXT_PUBLIC_REPO`, `NEXT_PUBLIC_REPO_BRANCH` | Optional. Used for "Open in Colab" and GitHub links (defaults: `itschu/python-course-beginner-to-advanced`, `main`). |
 
 See [`.env.example`](.env.example).

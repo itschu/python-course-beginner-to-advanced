@@ -6,7 +6,7 @@ import { getPhases } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Resources",
-  description: "Every course, book, video, tool and dataset you need to go from Python beginner to ML professional.",
+  description: "Every course, book, video, tool and dataset you need to go from beginner to professional in Python, Rust, machine learning and embedded systems.",
 };
 
 export default function ResourcesPage() {

@@ -5,7 +5,7 @@ minutes: 60
 kind: lesson
 ---
 
-You now have the skills of a junior ML practitioner: Python, data analysis, the maths, classical ML, deep learning, honest evaluation and a backend. This lesson is about turning that into a job, or into serious independent work.
+You now have the skills of a junior ML practitioner (Python, data analysis, the maths, classical ML, deep learning, honest evaluation and a backend) plus a second career path: Rust, embedded systems and models on devices. This lesson is about turning that into a job, or into serious independent work.
 
 ## The roles
 
@@ -19,6 +19,9 @@ You now have the skills of a junior ML practitioner: Python, data analysis, the 
 | **MLOps / platform engineer** | Infrastructure for training, deployment and monitoring | DevOps, Docker, Kubernetes, cloud | Kubernetes, infrastructure as code |
 | **Research engineer / scientist** | New methods, large models, publications | Deep learning, maths, reading and writing papers | Usually a master's or PhD, or strong published work |
 | **Quant researcher / trader** | Models for pricing and trading | Statistics, time series, probability, speed | Finance knowledge, often C++, strong maths |
+| **Embedded software engineer** | Firmware for products: sensors, motors, radios, power management | C or Rust, microcontrollers, protocols, reading datasheets, debugging with a probe | An RTOS (Zephyr, FreeRTOS), a logic analyser, PCB basics |
+| **Edge AI / TinyML engineer** | Fit models into phones, wearables and microcontrollers | Quantization, model compression, profiling on hardware, firmware | TFLite Micro or ExecuTorch, CMSIS-NN, DSP for audio |
+| **Rust / systems engineer** | Fast, reliable infrastructure: databases, inference servers, tooling | Rust, concurrency, performance, Linux | Async networking (Tokio), profiling, open-source contributions |
 | **Sports data scientist / trader** | Models for clubs, media, betting companies or syndicates | Probability models, the market, honest backtesting | Domain knowledge; the companies' own data |
 
 Given why you took this course: sports betting and trading firms hire people who can build **calibrated probability models and evaluate them honestly**, which is exactly what Phase 6 and this capstone taught. Your projects are directly relevant. Be realistic about doing it alone, though. As you saw, markets are efficient, edges are small and noisy, and bookmakers limit winning accounts. Working inside the industry is a far more reliable route than living off your own bets.
@@ -35,6 +38,15 @@ This course covered the core. Job adverts will also mention:
 | **Orchestration** | Scheduled, dependent jobs | Prefect, Dagster or Airflow for the data pipeline |
 | **LLMs** | Prompting, retrieval-augmented generation (RAG), fine-tuning | Hugging Face's LLM course; build a small RAG app over your own documents |
 | **Statistics, more deeply** | A/B tests, causal inference, time series | *Trustworthy Online Controlled Experiments* (Kohavi et al.); *Forecasting: Principles and Practice* (Hyndman & Athanasopoulos, free online) |
+
+For the embedded and Rust paths:
+
+| Skill | Why | Where to start |
+| --- | --- | --- |
+| **C** | Most existing firmware and vendor SDKs are C | *Modern C* (Jens Gustedt, free PDF); read your microcontroller's C SDK examples |
+| **An RTOS** | Many products use Zephyr or FreeRTOS rather than bare metal | Zephyr's getting-started guide on a Pico or nRF52 board |
+| **Hardware debugging** | Most embedded bugs are timing or wiring problems | A cheap logic analyser and probe-rs; Phase 12's habits |
+| **Open-source Rust** | The fastest way to get noticed | Fix a small issue in an embedded-hal driver, Embassy, Burn or Polars |
 
 Don't try to learn all of it before applying. Pick what the jobs you want ask for.
 

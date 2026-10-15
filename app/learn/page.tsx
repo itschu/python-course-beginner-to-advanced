@@ -7,7 +7,7 @@ import { getCourseStats, getLessonMetas, getPhases } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Course roadmap",
-  description: "Every phase and lesson in the course, from Python basics to deploying ML models.",
+  description: "Every phase and lesson in the course, from Python basics to Rust, machine learning and models on microcontrollers.",
 };
 
 export default function LearnPage() {

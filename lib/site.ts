@@ -1,6 +1,6 @@
 export const site = {
   name: "PyPath",
-  tagline: "From your first line of Python to building and serving your own ML models.",
+  tagline: "From your first line of Python to Rust, your own ML models, and models running on microcontrollers.",
   repo: process.env.NEXT_PUBLIC_REPO ?? "itschu/python-course-beginner-to-advanced",
   branch: process.env.NEXT_PUBLIC_REPO_BRANCH ?? "main",
 };
