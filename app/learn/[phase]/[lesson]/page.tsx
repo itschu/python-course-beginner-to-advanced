@@ -31,12 +31,13 @@ export default async function LessonPage({ params }: PageProps<"/learn/[phase]/[
 
   const siblings = getLessonMetas(phase.slug);
   const { prev, next } = getAdjacentLessons(lesson.key);
-  const hasCode = lesson.blocks.some((b) => b.type === "code" || b.type === "exercise");
+  const hasPython = lesson.languages.includes("python");
+  const hasRust = lesson.languages.includes("rust");
   const href = (l: { phaseSlug: string; slug: string }) => `/learn/${l.phaseSlug}/${l.slug}`;
 
   return (
     <div className="mx-auto flex max-w-7xl gap-10 px-4 py-10">
-      {hasCode && <PythonWarmup />}
+      {hasPython && <PythonWarmup />}
       <aside className="hidden w-64 shrink-0 lg:block">
         <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto pb-8">
           <Link href={`/learn/${phase.slug}`} className="text-xs font-semibold tracking-wide text-blue-600 uppercase hover:underline dark:text-blue-400">
@@ -97,7 +98,13 @@ export default async function LessonPage({ params }: PageProps<"/learn/[phase]/[
             <h1 className="mt-2 text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl dark:text-white">{lesson.title}</h1>
             {lesson.summary && <p className="mt-3 text-lg text-zinc-600 dark:text-zinc-400">{lesson.summary}</p>}
             <div className="mt-4 flex flex-wrap items-center gap-3">
-              {hasCode && <RunnerStatus />}
+              {hasPython && <RunnerStatus />}
+              {hasRust && (
+                <span className="inline-flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+                  <span className="size-2 rounded-full bg-orange-500" aria-hidden />
+                  Rust code compiles and runs on the official Rust Playground
+                </span>
+              )}
               {lesson.colab && (
                 <a href={colabUrl(lesson.colab)} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-outline">
                   Open notebook in Colab <ExternalLink className="size-3" aria-hidden />

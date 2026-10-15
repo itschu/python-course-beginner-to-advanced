@@ -3,6 +3,8 @@
 import dynamic from "next/dynamic";
 import { useState } from "react";
 
+import type { CodeLanguage } from "@/lib/types";
+
 const CodeEditor = dynamic(() => import("./code-editor"), { ssr: false });
 
 interface EditorProps {
@@ -12,6 +14,7 @@ interface EditorProps {
   minHeight?: string;
   maxHeight?: string;
   ariaLabel?: string;
+  language?: CodeLanguage;
 }
 
 /**

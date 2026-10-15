@@ -143,6 +143,8 @@ async def _pp_run(code, tests=None):
     tee = _PPTee(sys.stdout)
     result = {"ok": True, "error": None, "figures": [], "tests": None}
     _pp_close_figures()
+    if "pico_sim" in sys.modules:
+        sys.modules["pico_sim"].reset()   # every run starts with a fresh simulated board
     try:
         with contextlib.redirect_stdout(tee):
             await _pp_exec(code, "main.py", ns)

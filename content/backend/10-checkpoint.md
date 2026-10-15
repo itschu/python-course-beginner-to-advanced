@@ -323,4 +323,4 @@ async def test_validation_and_isolation():
 
 ## Phase 8 complete
 
-You can now build, secure, test and ship web services in Python, and serve your own models behind them. Combined with the earlier phases, you have the whole pipeline: data, models, honest evaluation, and an API that puts predictions in other people's hands. Phase 9 brings it all together in a capstone project, and looks at how to turn these skills into a career.
+You can now build, secure, test and ship web services in Python, and serve your own models behind them. Combined with the earlier phases, you have the whole pipeline: data, models, honest evaluation, and an API that puts predictions in other people's hands. Next comes a second language: Phase 9 starts Rust from zero, which leads to running models in Rust (Phase 11), programming microcontrollers (Phase 12) and putting your models on them (Phase 13). Phase 14 brings everything together in a capstone project, and looks at how to turn these skills into a career.

@@ -7,7 +7,7 @@ import matter from "gray-matter";
 import { phases } from "@/content/curriculum";
 import { parseLessonBody, type RawBlock } from "@/lib/lesson-parser";
 import { renderInlineMarkdown, renderMarkdown } from "@/lib/markdown";
-import type { Block, Lesson, LessonKind, LessonMeta, PhaseMeta } from "@/lib/types";
+import type { Block, CodeLanguage, Lesson, LessonKind, LessonMeta, PhaseMeta } from "@/lib/types";
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
 const FILE_RE = /^(\d+)-([a-z0-9-]+)\.md$/;
@@ -15,6 +15,8 @@ const FILE_RE = /^(\d+)-([a-z0-9-]+)\.md$/;
 interface LoadedLesson {
   meta: LessonMeta & { colab?: string };
   raw: RawBlock[];
+  /** Language of the lesson's exercises (frontmatter `language`, default python). */
+  exerciseLanguage: CodeLanguage;
 }
 
 let loaded: Map<string, LoadedLesson[]> | null = null;
@@ -31,11 +33,20 @@ function loadAll(): Map<string, LoadedLesson[]> {
         const source = fs.readFileSync(path.join(dir, file), "utf8");
         const { data, content } = matter(source);
         const raw = parseLessonBody(content, `${phase.slug}/${file}`);
+        const exerciseLanguage = (data.language ?? "python") as CodeLanguage;
+        if (exerciseLanguage !== "python" && exerciseLanguage !== "rust") {
+          throw new Error(`${phase.slug}/${file}: language must be python or rust`);
+        }
         const exerciseIds: string[] = [];
         const quizIds: string[] = [];
+        const languages = new Set<CodeLanguage>();
         for (const block of raw) {
-          if (block.kind === "exercise") exerciseIds.push(block.id);
+          if (block.kind === "exercise") {
+            exerciseIds.push(block.id);
+            languages.add(exerciseLanguage);
+          }
           if (block.kind === "quiz") quizIds.push(block.id);
+          if (block.kind === "code" && !block.meta.includes("static")) languages.add(block.language);
         }
         const ids = [...exerciseIds, ...quizIds];
         const dupe = ids.find((id, idx) => ids.indexOf(id) !== idx);
@@ -53,9 +64,11 @@ function loadAll(): Map<string, LoadedLesson[]> {
             kind: (data.kind ?? "lesson") as LessonKind,
             exerciseIds,
             quizIds,
+            languages: [...languages],
             colab: data.colab ? String(data.colab) : undefined,
           },
           raw,
+          exerciseLanguage,
         };
       })
       .sort((a, b) => a.meta.order - b.meta.order);
@@ -101,7 +114,7 @@ export function getCourseStats() {
   };
 }
 
-async function renderBlock(block: RawBlock, index: number): Promise<Block> {
+async function renderBlock(block: RawBlock, index: number, exerciseLanguage: CodeLanguage): Promise<Block> {
   switch (block.kind) {
     case "md":
       return { type: "markdown", html: await renderMarkdown(block.text) };
@@ -109,19 +122,20 @@ async function renderBlock(block: RawBlock, index: number): Promise<Block> {
       if (block.meta.includes("static")) {
         return {
           type: "static-code",
-          html: await renderMarkdown("```python\n" + block.code + "\n```"),
+          html: await renderMarkdown("```" + block.language + "\n" + block.code + "\n```"),
         };
       }
-      return { type: "code", id: `cell-${index}`, code: block.code, runnable: true };
+      return { type: "code", id: `cell-${index}`, code: block.code, runnable: true, language: block.language };
     case "exercise":
       return {
         type: "exercise",
         id: block.id,
         title: block.title,
+        language: exerciseLanguage,
         promptHtml: await renderMarkdown(block.prompt),
         starter: block.starter,
         solution: block.solution,
-        solutionHtml: await renderMarkdown("```python\n" + block.solution + "\n```"),
+        solutionHtml: await renderMarkdown("```" + exerciseLanguage + "\n" + block.solution + "\n```"),
         tests: block.tests,
         hintsHtml: await Promise.all(block.hints.map((h) => renderMarkdown(h))),
       };
@@ -160,6 +174,6 @@ export async function getLesson(
 ): Promise<(Lesson & { colab?: string }) | null> {
   const lesson = (loadAll().get(phaseSlug) ?? []).find((l) => l.meta.slug === lessonSlug);
   if (!lesson) return null;
-  const blocks = await Promise.all(lesson.raw.map(renderBlock));
+  const blocks = await Promise.all(lesson.raw.map((b, i) => renderBlock(b, i, lesson.exerciseLanguage)));
   return { ...lesson.meta, blocks };
 }

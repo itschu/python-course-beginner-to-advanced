@@ -83,6 +83,9 @@ if (isMainThread) {
   pyodide.setStdout({ batched: (text) => { output += text + "\n"; } });
   pyodide.setStderr({ batched: (text) => { output += text + "\n"; } });
   await pyodide.runPythonAsync(readFileSync(path.join(root, "public", "pyodide-harness.py"), "utf8"));
+  pyodide.runPython(readFileSync(path.join(root, "public", "micropython-sim.py"), "utf8"), {
+    globals: pyodide.toPy({ __name__: "micropython_sim" }),
+  });
 
   const loaded = new Set();
   const loadDataFiles = (source) => {
