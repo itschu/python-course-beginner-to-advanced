@@ -27,6 +27,26 @@ export interface PhaseMeta {
   resources: Resource[];
 }
 
+/**
+ * An optional mini-course outside the main path. Signed-out visitors see a locked
+ * preview; signed-in learners choose whether to take it.
+ */
+export interface ElectiveMeta {
+  slug: string;
+  /** Prefix for lesson numbers, e.g. "E1" gives "E1.3". */
+  code: string;
+  title: string;
+  tagline: string;
+  description: string;
+  /** Suggested after this phase number; earlier phases are the prerequisites. */
+  after: number;
+  /** Every code cell and exercise in the elective uses this language. */
+  language: CodeLanguage;
+  weeks: string;
+  outcomes: string[];
+  resources: Resource[];
+}
+
 export type LessonKind = "lesson" | "project" | "checkpoint";
 
 /** Languages that lessons can run: Python in the browser (Pyodide), Rust on the Rust Playground. */

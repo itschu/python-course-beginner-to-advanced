@@ -3,6 +3,11 @@
 Lessons are Markdown files in `content/<phase-slug>/NN-lesson-slug.md`. The number sets the order;
 the slug is the URL. Phase titles, outcomes and resources live in `curriculum.ts`.
 
+Electives (optional mini-courses, listed in `electives` in `curriculum.ts`) work the same way, in
+`content/<elective-slug>/`. Each elective has one `language`: every lesson must set it in the frontmatter, and
+code blocks in any other language are rejected by both the site and the validator. They're served at
+`/electives/<slug>`, and only signed-in learners who choose to take an elective can open its lessons.
+
 After editing, run `npm run validate` to execute every example and exercise.
 
 ## Frontmatter

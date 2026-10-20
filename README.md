@@ -24,8 +24,8 @@ Nothing needs installing to follow along:
 | 3 | Data Analysis with NumPy, pandas & Matplotlib | 10 | 32 |
 | 4 | Math & Statistics for ML | 9 | 28 |
 | 5 | Machine Learning with scikit-learn | 13 | 30 |
-| 6 | Applied ML: Time Series, Betting & Trading | 10 | 28 |
-| 7 | Deep Learning with PyTorch (Colab) | 12 | 29 |
+| 6 | Applied ML: Time Series, Betting & Trading, Responsible ML | 11 | 30 |
+| 7 | Deep Learning with PyTorch (Colab), computer vision, embeddings and RAG | 14 | 33 |
 | 8 | Python for the Backend (FastAPI) | 10 | 26 |
 | 9 | Rust Foundations | 12 | 34 |
 | 10 | Professional Rust (traits, generics, lifetimes, concurrency, async, unsafe) | 12 | 24 |
@@ -34,7 +34,16 @@ Nothing needs installing to follow along:
 | 13 | Edge AI & TinyML (int8 models on microcontrollers) | 9 | 14 |
 | 14 | Capstone & Career (server or device capstone, two-part final exam) | 10 | 27 |
 
-153 lessons and 387 auto-graded exercises in total.
+156 lessons and 393 auto-graded exercises in total, plus an optional elective:
+
+| Elective | Topic | Lessons | Exercises |
+| --- | --- | --- | --- |
+| E1 | Meme Coin Trading Bots in Rust (after Phase 11, Rust only) | 10 | 21 |
+
+Electives sit outside the main path and don't count towards course progress. Signed-out visitors see a locked
+preview (the lesson list and summaries); signed-in learners choose to take an elective, and can leave it again
+(their progress is kept). Choices are stored in the `elective_enrollment` table. When accounts aren't configured
+(no database), there's nobody to sign in, so electives are open to everyone.
 
 - **Phases 1–8** take you from your first line of Python to training, evaluating and serving ML models. The running
   example in the applied phases is a football prediction and value-betting system, with an EUR/USD dataset for
@@ -52,6 +61,10 @@ Nothing needs installing to follow along:
   Embassy deployment plan. The project is an end-to-end gesture recogniser.
 - **Phase 14** is the capstone (a live-season ML system, or a model shipped on a device), careers in ML,
   embedded and Rust, and a two-part final exam.
+- **Elective E1** builds a meme coin trading bot in Rust, honestly: constant-product pool maths in integers, a
+  seeded launch simulator with rug pulls and survivorship bias, fees, slippage and sandwich attacks, on-chain risk
+  signals, a rug-pull classifier evaluated walk-forward, an event-driven bot with a risk manager, a realistic
+  backtester, and how to go live safely (key handling, paper trading). Every runnable example uses simulated data.
 
 Resources for every phase (courses, books, videos, docs, tools) are listed on the site's
 **Resources** page and in [`content/curriculum.ts`](content/curriculum.ts).
@@ -101,7 +114,7 @@ predictions, which depend on `matches.csv`).
 ## Project structure
 
 ```text
-app/                    Next.js routes (home, course, lessons, playground, resources, progress)
+app/                    Next.js routes (home, course, lessons, electives, playground, resources, progress)
 components/python/      Code editor, runnable cells, exercises, output panel
 components/lesson/      Lesson renderer, quizzes, completion
 components/progress/    Progress store (browser storage, synced to the database when signed in)
@@ -134,7 +147,7 @@ pytest -q && uvicorn app.main:app --reload
 
 ## Colab notebooks
 
-PyTorch doesn't run in the browser, so the deep learning lessons from Phase 7 lesson 6 onwards come
+PyTorch doesn't run in the browser, so most deep learning lessons from Phase 7 lesson 6 onwards come
 with Google Colab notebooks. Each lesson's **Open in Colab** button opens
 `notebooks/<name>.ipynb` from GitHub (the `main` branch by default; set `NEXT_PUBLIC_REPO_BRANCH` to
 change it). The notebooks load the course datasets from the `main` branch on GitHub (`DATA_URL` at the

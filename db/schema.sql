@@ -9,3 +9,11 @@ create table if not exists lesson_progress (
   updated_at timestamptz not null default now(),
   primary key (user_id, lesson_key)
 );
+
+-- Electives a learner has chosen to take (optional mini-courses, see content/curriculum.ts).
+create table if not exists elective_enrollment (
+  user_id       text        not null references "user" (id) on delete cascade,
+  elective_slug text        not null,
+  enrolled_at   timestamptz not null default now(),
+  primary key (user_id, elective_slug)
+);
