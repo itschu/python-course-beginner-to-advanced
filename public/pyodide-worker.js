@@ -52,8 +52,36 @@ function writeOutput(stream, bytes) {
 }
 
 
+// Cache Storage filled by public/sw.js. It is missing on insecure origins (plain http).
+const CACHE = "pyodide";
+
+async function isCached() {
+  if (typeof caches === "undefined") return null;
+  try {
+    return Boolean(await caches.match(`${INDEX_URL}pyodide.asm.wasm`, { cacheName: CACHE }));
+  } catch {
+    return null;
+  }
+}
+
+async function forgetOldVersions() {
+  if (typeof caches === "undefined") return;
+  try {
+    if (!(await caches.has(CACHE))) return;
+    const cache = await caches.open(CACHE);
+    for (const request of await cache.keys()) {
+      if (!request.url.startsWith(INDEX_URL)) await cache.delete(request);
+    }
+  } catch {
+    // Cleanup is best effort.
+  }
+}
+
 async function init() {
-  post({ type: "status", message: "Downloading Python…" });
+  const cached = await isCached();
+  const message =
+    cached === null ? "Loading Python…" : cached ? "Starting Python…" : "Downloading Python (only needed once)…";
+  post({ type: "status", message });
   const { loadPyodide } = await import(`${INDEX_URL}pyodide.mjs`);
   pyodide = await loadPyodide({ indexURL: INDEX_URL });
   pyodide.setStdout({ write: (bytes) => writeOutput("stdout", bytes) });
@@ -65,6 +93,7 @@ async function init() {
   if (sim.ok) pyodide.runPython(await sim.text(), { globals: pyodide.toPy({ __name__: "micropython_sim" }) });
   const python = pyodide.runPython("import sys; sys.version.split()[0]");
   post({ type: "ready", python, pyodide: pyodide.version });
+  forgetOldVersions();
 }
 
 function ensureInit() {
