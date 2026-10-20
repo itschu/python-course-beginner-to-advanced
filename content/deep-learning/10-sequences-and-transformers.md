@@ -147,7 +147,7 @@ Attention by itself ignores order, so **positional encodings** are added to the 
 - **BERT**-style *encoders*: full attention, trained to fill in masked words. Good for understanding text: classification, search, extraction.
 - **GPT**-style *decoders*: causal attention, trained to predict the next token. Generate one token, append it, repeat. Scaled up enormously and fine-tuned to follow instructions, these become large language models such as Claude.
 
-Text is first split into **tokens** (words or word pieces) by a **tokenizer**, and each token id is looked up in an embedding table: the same `nn.Embedding` you used for teams in lesson 10.
+Text is first split into **tokens** (words or word pieces) by a **tokenizer**, and each token id is looked up in an embedding table: the same `nn.Embedding` you'll use for teams in lesson 12.
 
 ## Pretrained models with Hugging Face
 

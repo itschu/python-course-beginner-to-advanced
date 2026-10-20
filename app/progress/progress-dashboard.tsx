@@ -15,7 +15,22 @@ interface PhaseSummary {
   lessons: LessonMeta[];
 }
 
-export function ProgressDashboard({ phases, account }: { phases: PhaseSummary[]; account?: ReactNode }) {
+interface ElectiveSummary {
+  slug: string;
+  code: string;
+  title: string;
+  lessons: LessonMeta[];
+}
+
+export function ProgressDashboard({
+  phases,
+  electives = [],
+  account,
+}: {
+  phases: PhaseSummary[];
+  electives?: ElectiveSummary[];
+  account?: ReactNode;
+}) {
   const progress = useProgress();
   const fileInput = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -48,6 +63,9 @@ export function ProgressDashboard({ phases, account }: { phases: PhaseSummary[];
       setMessage("That file isn't a valid progress export.");
     }
   };
+
+  // Electives are optional, so they're listed only once started and never count in the totals above.
+  const startedElectives = electives.filter((e) => e.lessons.some((l) => data[l.key]));
 
   if (!progress.hydrated) return <div className="h-64 animate-pulse rounded-2xl bg-zinc-100 dark:bg-zinc-900" />;
 
@@ -90,6 +108,35 @@ export function ProgressDashboard({ phases, account }: { phases: PhaseSummary[];
           );
         })}
       </div>
+
+      {startedElectives.length > 0 && (
+        <div>
+          <h2 className="mb-3 text-lg font-semibold text-zinc-900 dark:text-white">Electives</h2>
+          <div className="card divide-y divide-zinc-100 dark:divide-zinc-800">
+            {startedElectives.map((elective) => {
+              const done = elective.lessons.filter((l) => data[l.key]?.completed).length;
+              return (
+                <div key={elective.slug} className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-amber-500 text-xs font-bold text-white">
+                    {elective.code}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <Link href={`/electives/${elective.slug}`} className="font-medium text-zinc-900 hover:underline dark:text-zinc-100">
+                      {elective.title}
+                    </Link>
+                    <div className="mt-0.5 text-xs text-zinc-500">
+                      Optional · {done}/{elective.lessons.length} lessons
+                    </div>
+                  </div>
+                  <div className="w-full sm:w-48">
+                    <ProgressBar percent={elective.lessons.length ? (done / elective.lessons.length) * 100 : 0} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="card p-5">
         <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">Your data</h2>

@@ -3,9 +3,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { ElectiveCard } from "@/components/electives/elective-card";
 import { CompletionBar, LessonStatusIcon } from "@/components/lesson/lesson-status";
 import { ResourceGrid } from "@/components/resource-list";
-import { getLessonMetas, getPhase, getPhases } from "@/lib/content";
+import { getElectivesAfter, getLessonMetas, getPhase, getPhases } from "@/lib/content";
 
 export const dynamicParams = false;
 
@@ -97,6 +98,11 @@ export default async function PhasePage({ params }: PageProps<"/learn/[phase]">)
               ))}
             </ol>
           )}
+          {getElectivesAfter(phase.number).map((elective) => (
+            <div key={elective.slug} className="mt-6">
+              <ElectiveCard elective={elective} />
+            </div>
+          ))}
           {next && (
             <Link href={`/learn/${next.slug}`} className="mt-6 inline-block text-sm font-medium text-blue-600 hover:underline dark:text-blue-400">
               Next phase: {next.title} →

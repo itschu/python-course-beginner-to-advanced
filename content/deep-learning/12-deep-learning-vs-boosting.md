@@ -56,7 +56,7 @@ Neural networks can be pushed closer with careful tuning, feature engineering an
 | Situation | Why |
 | --- | --- |
 | Images, audio, video | Convolutions and transformers learn the features; trees on raw pixels can't. On Fashion-MNIST, this phase's MLP reached 89% and the CNN 91.5% (lessons 7 and 8). |
-| Text | Pretrained transformers understand context and word order (lesson 9). |
+| Text | Pretrained transformers understand context and word order (lessons 10 and 11). |
 | Huge datasets | Millions of rows let networks learn patterns too complex for hand-made features. |
 | Many high-cardinality categories | **Embeddings** learn a compact vector for each product, user or store. |
 | Several input types at once | One network can combine an image, some text and a few numbers. |
@@ -116,7 +116,7 @@ With small, noisy data, a model whose structure matches how the data is generate
 ## A practical decision guide
 
 1. **Tabular data?** Start with a simple baseline, then gradient boosting (Phase 5). Only try a neural network if you have lots of data, embeddings to learn, or need to combine data types.
-2. **Images, audio or text?** Start from a pretrained network and fine-tune (lessons 8 and 9).
+2. **Images, audio or text?** Start from a pretrained network and fine-tune (lessons 8, 10 and 11).
 3. **Small data?** Prefer models with the right structure (like the goal model) over flexible ones, and validate honestly.
 4. **Whatever you choose,** compare with baselines on data the model never saw.
 

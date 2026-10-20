@@ -2,8 +2,9 @@ import { ArrowRight, Code2, Cpu, FlaskConical, Hammer, Rocket } from "lucide-rea
 import Link from "next/link";
 
 import { ContinueCard } from "@/components/continue-card";
+import { ElectiveCard } from "@/components/electives/elective-card";
 import { CompletionBar } from "@/components/lesson/lesson-status";
-import { getAllLessonMetas, getCourseStats, getLessonMetas, getPhases } from "@/lib/content";
+import { getAllLessonMetas, getCourseStats, getElectivesAfter, getLessonMetas, getPhases } from "@/lib/content";
 
 const STEPS = [
   {
@@ -140,6 +141,11 @@ export default function HomePage() {
                       )}
                     </span>
                   </Link>
+                  {getElectivesAfter(phase.number).map((elective) => (
+                    <div key={elective.slug} className="mt-3">
+                      <ElectiveCard elective={elective} />
+                    </div>
+                  ))}
                 </li>
               );
             })}

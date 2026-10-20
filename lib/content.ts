@@ -4,10 +4,10 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 
-import { phases } from "@/content/curriculum";
+import { electives, phases } from "@/content/curriculum";
 import { parseLessonBody, type RawBlock } from "@/lib/lesson-parser";
 import { renderInlineMarkdown, renderMarkdown } from "@/lib/markdown";
-import type { Block, CodeLanguage, Lesson, LessonKind, LessonMeta, PhaseMeta } from "@/lib/types";
+import type { Block, CodeLanguage, ElectiveMeta, Lesson, LessonKind, LessonMeta, PhaseMeta } from "@/lib/types";
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
 const FILE_RE = /^(\d+)-([a-z0-9-]+)\.md$/;
@@ -24,7 +24,8 @@ let loaded: Map<string, LoadedLesson[]> | null = null;
 function loadAll(): Map<string, LoadedLesson[]> {
   if (loaded && process.env.NODE_ENV === "production") return loaded;
   const result = new Map<string, LoadedLesson[]>();
-  for (const phase of phases) {
+  const sections: { slug: string; language?: CodeLanguage }[] = [...phases, ...electives];
+  for (const phase of sections) {
     const dir = path.join(CONTENT_DIR, phase.slug);
     const files = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => FILE_RE.test(f)) : [];
     const lessons = files
@@ -47,6 +48,13 @@ function loadAll(): Map<string, LoadedLesson[]> {
           }
           if (block.kind === "quiz") quizIds.push(block.id);
           if (block.kind === "code" && !block.meta.includes("static")) languages.add(block.language);
+          // Electives are taught in one language only, examples included.
+          if (phase.language && block.kind === "code" && block.language !== phase.language) {
+            throw new Error(`${phase.slug}/${file}: this elective only allows ${phase.language} code`);
+          }
+        }
+        if (phase.language && exerciseLanguage !== phase.language) {
+          throw new Error(`${phase.slug}/${file}: set language: ${phase.language} in the frontmatter`);
         }
         const ids = [...exerciseIds, ...quizIds];
         const dupe = ids.find((id, idx) => ids.indexOf(id) !== idx);
@@ -86,6 +94,20 @@ export function getPhase(slug: string): PhaseMeta | undefined {
   return phases.find((p) => p.slug === slug);
 }
 
+export function getElectives(): ElectiveMeta[] {
+  return electives;
+}
+
+export function getElective(slug: string): ElectiveMeta | undefined {
+  return electives.find((e) => e.slug === slug);
+}
+
+/** Electives suggested after the given phase. */
+export function getElectivesAfter(phaseNumber: number): ElectiveMeta[] {
+  return electives.filter((e) => e.after === phaseNumber);
+}
+
+/** Lessons of a phase or an elective, in order. */
 export function getLessonMetas(phaseSlug: string): (LessonMeta & { colab?: string })[] {
   return (loadAll().get(phaseSlug) ?? []).map((l) => l.meta);
 }
@@ -94,8 +116,10 @@ export function getAllLessonMetas(): LessonMeta[] {
   return phases.flatMap((p) => getLessonMetas(p.slug));
 }
 
+/** The lessons before and after this one, within the main course or within its elective. */
 export function getAdjacentLessons(key: string): { prev?: LessonMeta; next?: LessonMeta } {
-  const all = getAllLessonMetas();
+  const elective = getElective(key.split("/")[0]);
+  const all = elective ? getLessonMetas(elective.slug) : getAllLessonMetas();
   const idx = all.findIndex((l) => l.key === key);
   return { prev: all[idx - 1], next: all[idx + 1] };
 }

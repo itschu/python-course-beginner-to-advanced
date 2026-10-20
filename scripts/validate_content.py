@@ -84,8 +84,16 @@ class ParseError(Exception):
 
 
 def phase_slugs() -> list[str]:
+    """Phases and electives, in curriculum order."""
     text = (CONTENT / "curriculum.ts").read_text()
     return re.findall(r'^\s{4}slug: "([a-z0-9-]+)"', text, flags=re.M)
+
+
+def elective_languages() -> dict[str, str]:
+    """Each elective's slug and the one language its lessons may use."""
+    text = (CONTENT / "curriculum.ts").read_text()
+    electives = text[text.index("export const electives"):] if "export const electives" in text else ""
+    return dict(re.findall(r'^\s{4}slug: "([a-z0-9-]+)",.*?^\s{4}language: "(\w+)"', electives, flags=re.M | re.S))
 
 
 def parse_frontmatter(text: str, path: Path) -> tuple[dict, str, int]:
@@ -476,6 +484,7 @@ def main() -> int:
     if unknown_dirs:
         errors.append(f"content folders not listed in curriculum.ts: {sorted(unknown_dirs)}")
 
+    only_language = elective_languages()
     lessons: list[Lesson] = []
     for slug in slugs:
         if args.phase and slug != args.phase:
@@ -497,9 +506,19 @@ def main() -> int:
             if args.keyword and args.keyword not in str(path):
                 continue
             try:
-                lessons.append(parse_lesson(path))
+                lesson = parse_lesson(path)
             except ParseError as exc:
                 errors.append(str(exc))
+                continue
+            lessons.append(lesson)
+            language = only_language.get(slug)
+            if language:
+                rel = path.relative_to(ROOT)
+                if lesson.meta.get("language", "python") != language:
+                    errors.append(f"{rel}: lessons in this elective need 'language: {language}' in the frontmatter")
+                others = lesson.code_blocks if language == "rust" else lesson.rust_blocks
+                for line, _, _ in others:
+                    errors.append(f"{rel}:{line}: this elective only allows {language} code")
 
     if args.export_jobs:
         return export_jobs(lessons, Path(args.export_jobs), errors)

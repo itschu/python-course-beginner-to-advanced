@@ -1,4 +1,4 @@
-import type { PhaseMeta, Resource } from "@/lib/types";
+import type { ElectiveMeta, PhaseMeta, Resource } from "@/lib/types";
 
 /**
  * The course map. Lessons live in content/<phase-slug>/NN-<lesson-slug>.md;
@@ -469,7 +469,7 @@ export const phases: PhaseMeta[] = [
     title: "Applied ML: Time Series, Betting & Trading",
     tagline: "Build models on time-ordered data, and evaluate them honestly.",
     description:
-      "Where most models fail in practice. Walk-forward validation, data leakage, Elo ratings and form features, Poisson and Dixon–Coles goal models, value betting, staking and backtesting, forex returns and transaction costs, calibration, and saving and tracking models. The project is a complete value-betting backtester.",
+      "Where most models fail in practice. Walk-forward validation, data leakage, Elo ratings and form features, Poisson and Dixon–Coles goal models, value betting, staking and backtesting, forex returns and transaction costs, calibration, saving and tracking models, and responsible ML: fairness, privacy and gambling harm. The project is a complete value-betting backtester.",
     weeks: "Weeks 22–26",
     outcomes: [
       "Validate models on time-ordered data without peeking at the future",
@@ -477,6 +477,7 @@ export const phases: PhaseMeta[] = [
       "Build Elo ratings and Poisson goal models from scratch",
       "Backtest a strategy with costs, and report ROI, drawdown and Sharpe ratio",
       "Calibrate probabilities, and save, version and reload models",
+      "Measure a model's fairness across groups, and spot proxies and privacy risks",
     ],
     resources: [
       {
@@ -557,12 +558,14 @@ export const phases: PhaseMeta[] = [
     title: "Deep Learning with PyTorch",
     tagline: "Neural networks from scratch, then PyTorch for images, sequences and transfer learning.",
     description:
-      "Build a neural network in pure NumPy first, so nothing is magic. Then move to PyTorch in Google Colab (free GPUs): tensors, autograd, training loops, CNNs for images, sequence models and transformers, and fine-tuning pretrained models from Hugging Face.",
+      "Build a neural network in pure NumPy first, so nothing is magic. Then move to PyTorch in Google Colab (free GPUs): tensors, autograd, training loops, CNNs for images, computer vision in practice (augmentation, shortcut learning, detection), sequence models and transformers, fine-tuning pretrained models from Hugging Face, and embeddings, semantic search and retrieval-augmented generation (RAG).",
     weeks: "Weeks 27–32",
     outcomes: [
       "Implement forward and backward passes of a neural network by hand",
       "Write PyTorch training loops with validation and early stopping",
       "Train CNNs on images and use transfer learning",
+      "Make vision models robust with augmentation, and catch shortcut learning",
+      "Build semantic search and a retrieval-augmented generation pipeline, and evaluate it",
       "Explain how RNNs, attention and transformers process sequences",
       "Know when deep learning beats gradient boosting, and when it doesn't",
     ],
@@ -1231,6 +1234,90 @@ export const phases: PhaseMeta[] = [
         type: "article",
         free: true,
         note: "A map of the MLOps skills employers look for.",
+      },
+    ],
+  },
+];
+
+/**
+ * Optional mini-courses outside the main path. Lessons live in content/<elective-slug>/
+ * like a phase's. Signed-out visitors see a locked preview; signed-in learners choose to take them.
+ */
+export const electives: ElectiveMeta[] = [
+  {
+    slug: "meme-coin-trading",
+    code: "E1",
+    title: "Meme Coin Trading Bots in Rust",
+    tagline: "An optional, Rust-only elective: how meme coin markets really work, and a bot that's honest about them.",
+    description:
+      "How meme coins launch and trade on decentralised exchanges, why most of them go to zero, and how to build a trading bot in Rust without fooling yourself. You'll implement a constant-product AMM, simulate thousands of token launches (rug pulls included), price in fees, slippage and sandwich attacks, compute on-chain risk signals, train a rug-pull classifier from scratch, and build an event-driven bot with a risk manager and a realistic backtester. Every runnable example uses simulated data; the last lessons show how to connect to Solana for real and how to protect your keys and your money.",
+    after: 11,
+    language: "rust",
+    weeks: "3–4 weeks, any time after Phase 11",
+    outcomes: [
+      "Explain bonding curves, liquidity pools and constant-product pricing, and compute a swap's output and price impact",
+      "Simulate token launches and show how survivorship bias makes backtests lie",
+      "Measure slippage, fees and sandwich attacks, and set safe slippage limits",
+      "Compute holder concentration and other rug-pull signals, and train a classifier on them without leakage",
+      "Build an event-driven Rust bot with a strategy trait, a risk manager and a kill switch",
+      "Backtest with latency and costs, paper trade first, and keep private keys safe",
+    ],
+    resources: [
+      {
+        title: "Solana documentation",
+        url: "https://solana.com/docs",
+        type: "docs",
+        free: true,
+        note: "Accounts, transactions, tokens and RPC: the official reference for the chain most meme coins trade on.",
+      },
+      {
+        title: "Solana Cookbook",
+        url: "https://solana.com/developers/cookbook",
+        type: "docs",
+        free: true,
+        note: "Short, copyable recipes for wallets, token accounts and transactions, including Rust examples.",
+      },
+      {
+        title: "How Uniswap works",
+        url: "https://docs.uniswap.org/contracts/v2/concepts/protocol-overview/how-uniswap-works",
+        type: "article",
+        free: true,
+        note: "The constant-product market maker (x · y = k) that most meme coin pools copy.",
+      },
+      {
+        title: "Jupiter developer docs",
+        url: "https://dev.jup.ag/",
+        type: "docs",
+        free: true,
+        note: "Solana's main swap aggregator: quotes, routes and swap transactions over a simple HTTP API.",
+      },
+      {
+        title: "Flashbots: MEV documentation",
+        url: "https://docs.flashbots.net/",
+        type: "docs",
+        free: true,
+        note: "What maximal extractable value is, and how sandwich attacks and front-running work.",
+      },
+      {
+        title: "Tokio tutorial",
+        url: "https://tokio.rs/tokio/tutorial",
+        type: "course",
+        free: true,
+        note: "Async Rust in practice: tasks, channels and network I/O. A live bot is built on this.",
+      },
+      {
+        title: "DEX Screener",
+        url: "https://dexscreener.com/",
+        type: "tool",
+        free: true,
+        note: "Live pools, prices and trades for new tokens. Good for watching what the lessons simulate.",
+      },
+      {
+        title: "FCA: cryptoassets",
+        url: "https://www.fca.org.uk/consumers/cryptoassets",
+        type: "article",
+        free: true,
+        note: "A regulator's plain-English warning: crypto is high risk, largely unprotected, and full of scams.",
       },
     ],
   },
