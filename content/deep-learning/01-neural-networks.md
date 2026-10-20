@@ -18,7 +18,7 @@ This phase builds a neural network from scratch in NumPy first, running in your 
 | Long sequences, e.g. sensor data | Deep learning, sometimes | When there's lots of data and complex patterns |
 | **Tables of features** (like match stats or house prices) | **Gradient boosting** | Trees handle mixed features, missing values and small data better |
 
-For most betting and business problems with tabular data, gradient boosting from Phase 5 is still the model to beat. Lesson 10 tests that claim directly.
+For most betting and business problems with tabular data, gradient boosting from Phase 5 is still the model to beat. Lesson 12 tests that claim directly.
 
 ## A single neuron
 
