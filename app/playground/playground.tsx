@@ -292,8 +292,12 @@ export function Playground({ datasets }: { datasets: Dataset[] }) {
           <ul className="mt-3 space-y-3">
             {datasets.map((d) => (
               <li key={d.file}>
-                <div className="font-mono text-xs font-semibold text-blue-700 dark:text-blue-400">data/{d.file}</div>
-                <div className="text-xs text-zinc-600 dark:text-zinc-400">{d.title}</div>
+                <a href={`/data/${d.file}`} target="_blank" rel="noopener noreferrer" className="group block">
+                  <div className="font-mono text-xs font-semibold text-blue-700 group-hover:underline dark:text-blue-400">
+                    data/{d.file}
+                  </div>
+                  <div className="text-xs text-zinc-600 dark:text-zinc-400">{d.title}</div>
+                </a>
               </li>
             ))}
           </ul>
