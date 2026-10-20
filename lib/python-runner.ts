@@ -43,6 +43,15 @@ interface ActiveRun {
 const DEFAULT_TIMEOUT = 60_000;
 const INDEX_URL = process.env.NEXT_PUBLIC_PYODIDE_INDEX_URL;
 
+let cacheWorkerRegistered = false;
+
+/** Register public/sw.js, which keeps Pyodide's files cached between visits. */
+function registerCacheWorker() {
+  if (cacheWorkerRegistered || !("serviceWorker" in navigator)) return;
+  cacheWorkerRegistered = true;
+  navigator.serviceWorker.register("/sw.js", { scope: "/", updateViaCache: "none" }).catch(() => {});
+}
+
 /**
  * One shared Python worker per browser tab. Runs are queued and executed one
  * at a time; stopping a run terminates the worker and a fresh one is created
@@ -71,6 +80,7 @@ class PythonRunner {
 
   private ensureWorker(): Worker {
     if (this.worker) return this.worker;
+    registerCacheWorker();
     const url = INDEX_URL
       ? `/pyodide-worker.js?indexURL=${encodeURIComponent(INDEX_URL)}`
       : "/pyodide-worker.js";

@@ -110,6 +110,7 @@ lib/                    Lesson parser, Markdown rendering, Python runner client,
 public/pyodide-worker.js   Web worker that runs Python
 public/pyodide-harness.py  Grading harness (runs code, captures output and charts, runs tests)
 public/micropython-sim.py  Simulated Raspberry Pi Pico: machine, micropython and pico_sim modules
+public/sw.js               Service worker that caches Pyodide's files, so Python downloads once per version
 lib/rust-runner.ts      Runs Rust on the Rust Playground and grades exercises with cargo test
 public/data/            Datasets lessons can open as "data/<file>"
 notebooks/              Colab notebooks for the PyTorch lessons (built from notebooks/src/)
@@ -201,7 +202,7 @@ Tables: Better Auth's `user`, `session`, `account` and `verification`, plus `les
 | `BETTER_AUTH_SECRET` | Secret for signing sessions. Required for accounts. |
 | `BETTER_AUTH_URL` | Public URL of the site. |
 | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | Optional. Enables "Continue with GitHub". |
-| `NEXT_PUBLIC_PYODIDE_INDEX_URL` | Optional. Where to load Pyodide from (defaults to the jsDelivr CDN, v314.0.7). |
+| `NEXT_PUBLIC_PYODIDE_INDEX_URL` | Optional. Where to load Pyodide from (defaults to the jsDelivr CDN, v314.0.7). The service worker only caches files from jsDelivr. |
 | `NEXT_PUBLIC_RUST_PLAYGROUND_URL` | Optional. Where Rust code is compiled (defaults to `https://play.rust-lang.org`). Any server with the Playground's `/execute` API works. |
 | `NEXT_PUBLIC_REPO`, `NEXT_PUBLIC_REPO_BRANCH` | Optional. Used for "Open in Colab" and GitHub links (defaults: `itschu/python-course-beginner-to-advanced`, `main`). |
 
