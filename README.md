@@ -204,8 +204,25 @@ npm run dev
 - Signing out removes the account's progress from that browser, and progress from one account is
   never merged into another.
 
-Tables: Better Auth's `user`, `session`, `account` and `verification`, plus `lesson_progress`
-([`db/schema.sql`](db/schema.sql)).
+Tables: Better Auth's `user`, `session`, `account` and `verification`, plus `lesson_progress` and
+`elective_enrollment` ([`db/schema.sql`](db/schema.sql)).
+
+### Admin dashboard
+
+`/admin` shows sign-ups, active learners, completions per phase and elective, and the most started
+lessons. **Users** lists every account with its progress (searchable, with a CSV export); each
+learner's page shows their progress by phase, lets you enrol them in or remove them from electives,
+and can delete the account (for deletion requests).
+
+To get access:
+
+1. Sign up on the site with the email you want to use as an admin (or sign in, if you already have).
+2. Set `ADMIN_EMAILS` to that address (comma-separate several) in Vercel's environment variables or
+   `.env.local`, and redeploy or restart.
+3. Open **Admin** from the account menu, or go to `/admin`.
+
+Do step 1 first: sign-ups don't verify email addresses, so whoever registers an address owns it.
+Signed-out visitors are sent to the sign-in page, and signed-in people who aren't admins get a 404.
 
 ## Configuration
 
@@ -214,6 +231,7 @@ Tables: Better Auth's `user`, `session`, `account` and `verification`, plus `les
 | `DATABASE_URL` (or `POSTGRES_URL`) | Postgres connection string. Enables accounts and sync. |
 | `BETTER_AUTH_SECRET` | Secret for signing sessions. Required for accounts. |
 | `BETTER_AUTH_URL` | Public URL of the site. |
+| `ADMIN_EMAILS` | Optional. Comma-separated emails of the accounts that can open the `/admin` dashboard. |
 | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | Optional. Enables "Continue with GitHub". |
 | `NEXT_PUBLIC_PYODIDE_INDEX_URL` | Optional. Where to load Pyodide from (defaults to the jsDelivr CDN, v314.0.7). The service worker only caches files from jsDelivr. |
 | `NEXT_PUBLIC_RUST_PLAYGROUND_URL` | Optional. Where Rust code is compiled (defaults to `https://play.rust-lang.org`). Any server with the Playground's `/execute` API works. |

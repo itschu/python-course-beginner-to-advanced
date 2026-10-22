@@ -1,6 +1,6 @@
 "use client";
 
-import { Cloud, CloudOff, LogOut, RefreshCw, User } from "lucide-react";
+import { Cloud, CloudOff, LogOut, RefreshCw, Shield, User } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
@@ -33,7 +33,24 @@ export function SyncBadge() {
 export function AccountMenu() {
   const auth = useAuth();
   const [open, setOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const userId = auth.user?.id;
+
+  useEffect(() => {
+    if (!userId) return;
+    let cancelled = false;
+    fetch("/api/admin/status")
+      .then((r) => (r.ok ? r.json() : { admin: false }))
+      .then((data) => {
+        if (!cancelled) setIsAdmin(data.admin === true);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+      setIsAdmin(false);
+    };
+  }, [userId]);
 
   useEffect(() => {
     if (!open) return;
@@ -82,6 +99,15 @@ export function AccountMenu() {
           >
             My progress
           </Link>
+          {isAdmin && (
+            <Link
+              href="/admin"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            >
+              <Shield className="size-4" aria-hidden /> Admin
+            </Link>
+          )}
           <button
             type="button"
             onClick={async () => {
