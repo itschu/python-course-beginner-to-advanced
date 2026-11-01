@@ -4,10 +4,12 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 
-import { electives, phases } from "@/content/curriculum";
+import { courses, mainCourse } from "@/content/courses";
 import { parseLessonBody, type RawBlock } from "@/lib/lesson-parser";
 import { renderInlineMarkdown, renderMarkdown } from "@/lib/markdown";
-import type { Block, CodeLanguage, ElectiveMeta, Lesson, LessonKind, LessonMeta, PhaseMeta } from "@/lib/types";
+import type { Block, CodeLanguage, CourseMeta, ElectiveMeta, Lesson, LessonKind, LessonMeta, PhaseMeta } from "@/lib/types";
+
+const LANGUAGES: CodeLanguage[] = ["python", "rust", "tsx"];
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
 const FILE_RE = /^(\d+)-([a-z0-9-]+)\.md$/;
@@ -24,9 +26,12 @@ let loaded: Map<string, LoadedLesson[]> | null = null;
 function loadAll(): Map<string, LoadedLesson[]> {
   if (loaded && process.env.NODE_ENV === "production") return loaded;
   const result = new Map<string, LoadedLesson[]>();
-  const sections: { slug: string; language?: CodeLanguage }[] = [...phases, ...electives];
+  const sections = courses.flatMap((course) =>
+    [...course.phases, ...course.electives].map((s) => ({ slug: s.slug, language: "language" in s ? s.language : undefined, course })),
+  );
   for (const phase of sections) {
-    const dir = path.join(CONTENT_DIR, phase.slug);
+    if (result.has(phase.slug)) throw new Error(`Two phases or electives are called "${phase.slug}": slugs must be unique across courses`);
+    const dir = path.join(CONTENT_DIR, phase.course.contentDir, phase.slug);
     const files = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => FILE_RE.test(f)) : [];
     const lessons = files
       .map((file): LoadedLesson => {
@@ -35,8 +40,8 @@ function loadAll(): Map<string, LoadedLesson[]> {
         const { data, content } = matter(source);
         const raw = parseLessonBody(content, `${phase.slug}/${file}`);
         const exerciseLanguage = (data.language ?? "python") as CodeLanguage;
-        if (exerciseLanguage !== "python" && exerciseLanguage !== "rust") {
-          throw new Error(`${phase.slug}/${file}: language must be python or rust`);
+        if (!LANGUAGES.includes(exerciseLanguage)) {
+          throw new Error(`${phase.slug}/${file}: language must be one of ${LANGUAGES.join(", ")}`);
         }
         const exerciseIds: string[] = [];
         const quizIds: string[] = [];
@@ -86,25 +91,44 @@ function loadAll(): Map<string, LoadedLesson[]> {
   return result;
 }
 
-export function getPhases(): PhaseMeta[] {
-  return phases;
+export function getCourses(): CourseMeta[] {
+  return courses;
 }
 
-export function getPhase(slug: string): PhaseMeta | undefined {
-  return phases.find((p) => p.slug === slug);
+export function getCourse(slug: string): CourseMeta | undefined {
+  return courses.find((c) => c.slug === slug);
+}
+
+/** The course a phase or elective belongs to. */
+export function getCourseOf(sectionSlug: string): CourseMeta | undefined {
+  return courses.find((c) => c.phases.some((p) => p.slug === sectionSlug) || c.electives.some((e) => e.slug === sectionSlug));
+}
+
+/** Phases of a course (the main course by default). */
+export function getPhases(course: CourseMeta = mainCourse): PhaseMeta[] {
+  return course.phases;
+}
+
+export function getPhase(slug: string, course: CourseMeta = mainCourse): PhaseMeta | undefined {
+  return course.phases.find((p) => p.slug === slug);
+}
+
+/** Every course's phases, with the course each belongs to. */
+export function getAllPhases(): { course: CourseMeta; phase: PhaseMeta }[] {
+  return courses.flatMap((course) => course.phases.map((phase) => ({ course, phase })));
 }
 
 export function getElectives(): ElectiveMeta[] {
-  return electives;
+  return courses.flatMap((c) => c.electives);
 }
 
 export function getElective(slug: string): ElectiveMeta | undefined {
-  return electives.find((e) => e.slug === slug);
+  return getElectives().find((e) => e.slug === slug);
 }
 
-/** Electives suggested after the given phase. */
+/** Electives suggested after the given phase of the main course. */
 export function getElectivesAfter(phaseNumber: number): ElectiveMeta[] {
-  return electives.filter((e) => e.after === phaseNumber);
+  return mainCourse.electives.filter((e) => e.after === phaseNumber);
 }
 
 /** Lessons of a phase or an elective, in order. */
@@ -112,20 +136,23 @@ export function getLessonMetas(phaseSlug: string): (LessonMeta & { colab?: strin
   return (loadAll().get(phaseSlug) ?? []).map((l) => l.meta);
 }
 
-export function getAllLessonMetas(): LessonMeta[] {
-  return phases.flatMap((p) => getLessonMetas(p.slug));
+/** Every lesson of a course's main path (the main course by default), in order. */
+export function getAllLessonMetas(course: CourseMeta = mainCourse): LessonMeta[] {
+  return course.phases.flatMap((p) => getLessonMetas(p.slug));
 }
 
-/** The lessons before and after this one, within the main course or within its elective. */
+/** The lessons before and after this one, within its course or within its elective. */
 export function getAdjacentLessons(key: string): { prev?: LessonMeta; next?: LessonMeta } {
-  const elective = getElective(key.split("/")[0]);
-  const all = elective ? getLessonMetas(elective.slug) : getAllLessonMetas();
+  const section = key.split("/")[0];
+  const elective = getElective(section);
+  const all = elective ? getLessonMetas(elective.slug) : getAllLessonMetas(getCourseOf(section));
   const idx = all.findIndex((l) => l.key === key);
   return { prev: all[idx - 1], next: all[idx + 1] };
 }
 
-export function getCourseStats() {
-  const all = getAllLessonMetas();
+export function getCourseStats(course: CourseMeta = mainCourse) {
+  const all = getAllLessonMetas(course);
+  const { phases } = course;
   return {
     phases: phases.length,
     lessons: all.filter((l) => l.kind === "lesson").length,

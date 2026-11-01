@@ -18,6 +18,8 @@ export interface LessonSection {
   href: string;
   /** Prefix for lesson numbers: "11" gives "11.3". */
   number: string;
+  /** The course's roadmap and phase URLs. */
+  course: { shortTitle: string; href: string };
 }
 
 /**
@@ -43,8 +45,10 @@ export function LessonView({
 }) {
   const hasPython = !locked && lesson.languages.includes("python");
   const hasRust = !locked && lesson.languages.includes("rust");
-  // Neighbours in the main course can be in another phase.
-  const href = (l: LessonMeta) => (l.phaseSlug === lesson.phaseSlug ? `${section.href}/${l.slug}` : `/learn/${l.phaseSlug}/${l.slug}`);
+  const hasRn = !locked && lesson.languages.includes("tsx");
+  // Neighbours in a course can be in another phase.
+  const href = (l: LessonMeta) =>
+    l.phaseSlug === lesson.phaseSlug ? `${section.href}/${l.slug}` : `${section.course.href}/${l.phaseSlug}/${l.slug}`;
 
   return (
     <div className="mx-auto flex max-w-7xl gap-10 px-4 py-10">
@@ -79,8 +83,8 @@ export function LessonView({
       <article className="min-w-0 flex-1">
         <div className="mx-auto max-w-3xl">
           <nav className="flex flex-wrap items-center gap-x-2 text-sm text-zinc-500">
-            <Link href="/learn" className="hover:underline">
-              Course
+            <Link href={section.course.href} className="hover:underline">
+              {section.course.shortTitle}
             </Link>
             <span>/</span>
             <Link href={section.href} className="hover:underline">
@@ -114,6 +118,12 @@ export function LessonView({
                 <span className="inline-flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
                   <span className="size-2 rounded-full bg-orange-500" aria-hidden />
                   Rust code compiles and runs on the official Rust Playground
+                </span>
+              )}
+              {hasRn && (
+                <span className="inline-flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+                  <span className="size-2 rounded-full bg-violet-500" aria-hidden />
+                  React Native code runs in a phone simulator in your browser
                 </span>
               )}
               {!locked && lesson.colab && (

@@ -27,6 +27,28 @@ export interface PhaseMeta {
   resources: Resource[];
 }
 
+/** A course on the site: its phases, electives and toolkit. Lesson progress keys are unique across courses. */
+export interface CourseMeta {
+  slug: string;
+  /** Long name, e.g. "Mobile Apps with React Native". */
+  title: string;
+  /** Short name for navigation and labels, e.g. "Mobile". */
+  shortTitle: string;
+  tagline: string;
+  description: string;
+  /** The roadmap page; phases are at <href>/<phase-slug>. */
+  href: string;
+  /** Folder under content/ that holds the phase folders ("" for the top level). */
+  contentDir: string;
+  /** What learners should know before starting. */
+  prerequisites: string;
+  /** Languages the runnable code in this course uses. */
+  languages: CodeLanguage[];
+  phases: PhaseMeta[];
+  electives: ElectiveMeta[];
+  toolkit: Resource[];
+}
+
 /**
  * An optional mini-course outside the main path. Signed-out visitors see a locked
  * preview; signed-in learners choose whether to take it.
@@ -49,8 +71,11 @@ export interface ElectiveMeta {
 
 export type LessonKind = "lesson" | "project" | "checkpoint";
 
-/** Languages that lessons can run: Python in the browser (Pyodide), Rust on the Rust Playground. */
-export type CodeLanguage = "python" | "rust";
+/**
+ * Languages that lessons can run: Python in the browser (Pyodide), Rust on the Rust Playground,
+ * and React Native (TypeScript + JSX) in the simulator in lib/mobile/rn-runtime.mjs.
+ */
+export type CodeLanguage = "python" | "rust" | "tsx";
 
 export interface LessonMeta {
   /** "<phase-slug>/<lesson-slug>" – stable id used for progress tracking */

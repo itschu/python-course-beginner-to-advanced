@@ -8,6 +8,11 @@ Electives (optional mini-courses, listed in `electives` in `curriculum.ts`) work
 code blocks in any other language are rejected by both the site and the validator. They're served at
 `/electives/<slug>`, and only signed-in learners who choose to take an elective can open its lessons.
 
+The mobile course lives in `content/mobile/`: its phases are listed in `content/mobile/curriculum.ts`, and its
+lessons in `content/mobile/<phase-slug>/`. Every course is registered in `content/courses.ts`. Phase slugs must be
+unique across courses, because they're the first half of every lesson's progress key. See
+[React Native lessons](#react-native-lessons-the-mobile-course) below.
+
 After editing, run `npm run validate` to execute every example and exercise.
 
 ## Frontmatter
@@ -19,7 +24,7 @@ summary: One sentence shown under the title and in lesson lists.
 minutes: 40
 kind: lesson        # lesson | project | checkpoint
 colab: notebooks/07-02-pytorch-tensors.ipynb   # optional "Open in Colab" button
-language: rust      # optional: the language of this lesson's exercises (python by default)
+language: rust      # optional: the language of this lesson's exercises: python (default), rust or tsx
 ---
 ```
 
@@ -182,3 +187,86 @@ $$
 \text{EV} = p \times (o - 1) - (1 - p)
 $$
 ```
+
+## React Native lessons (the mobile course)
+
+Lessons in `content/mobile/` use `tsx` code: TypeScript with JSX, run by the React Native simulator in
+`lib/mobile/rn-runtime.mjs`. Set `language: tsx` in the frontmatter of any lesson with exercises.
+
+### Cells
+
+````markdown
+```tsx
+import { Text, View } from "react-native";
+
+// A cell with `export default` (or a component called App) runs on the phone preview,
+// and gets a Snack button that opens it in Expo Snack.
+export default function App() {
+  return (
+    <View style={{ padding: 24 }}>
+      <Text>Hello!</Text>
+    </View>
+  );
+}
+```
+
+```tsx
+console.log("A cell without a default export just runs, and prints to the output.");
+```
+
+```tsx static
+// Highlighted only: code that needs a real phone, other packages or several files.
+```
+````
+
+`expect-error` and `expect-warning` work as for Python. Cells may import `react`, `react-native`, `expo-status-bar` and
+`@testing-library/react-native`; anything else must be `static`. Types are stripped, not checked. The validator fails
+any cell that prints a warning (like a missing `key`) unless it's marked `expect-warning`.
+
+### Exercises
+
+Exercises use the same sections. The tests are appended to the learner's code and use Jest and React Native Testing
+Library, which are already in scope: `test`, `describe`, `expect`, `jest` (`jest.fn`, `jest.spyOn`, fake timers),
+`render`, `screen`, `fireEvent`, `waitFor`, `act` and `within`. `source` holds the learner's code as a string. Each
+`test`'s name is shown to the learner. Export the components the tests use, and include a default `App` that uses them
+so **Run only** shows something on the phone.
+
+```markdown
+:::exercise greeting Greet by name
+Write a `Greeting` component that shows `Hello, Ada!` for `name="Ada"`.
+
+@@starter
+import { Text } from "react-native";
+
+export function Greeting({ name }: { name: string }) {
+  return <Text>Hello!</Text>;
+}
+
+export default function App() {
+  return <Greeting name="Ada" />;
+}
+
+@@solution
+import { Text } from "react-native";
+
+export function Greeting({ name }: { name: string }) {
+  return <Text>Hello, {name}!</Text>;
+}
+
+export default function App() {
+  return <Greeting name="Ada" />;
+}
+
+@@tests
+test("Greets by name", () => {
+  render(<Greeting name="Grace" />);
+  expect(screen.getByText("Hello, Grace!")).toBeOnTheScreen();
+});
+:::
+```
+
+Queries: `getBy`/`getAllBy`/`queryBy`/`queryAllBy`/`findBy`/`findAllBy` + `Text`, `TestId`, `PlaceholderText`,
+`DisplayValue`, `LabelText` (accessibilityLabel) and `Role`. Events: `fireEvent.press`, `fireEvent.changeText`,
+`fireEvent(element, "valueChange", true)` and so on; presses on disabled elements are ignored. Matchers include Jest's
+common ones plus `toBeOnTheScreen`, `toHaveTextContent`, `toHaveDisplayValue`, `toHaveStyle`, `toHaveProp`,
+`toBeDisabled`, `toBeEnabled` and `toBeVisible`.

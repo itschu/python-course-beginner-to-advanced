@@ -4,7 +4,7 @@ import Link from "next/link";
 import { AdminHeader, StatCard } from "@/components/admin/admin-header";
 import { requireAdminPage } from "@/lib/admin";
 import { getLessonActivity, getOverview, getSectionLearners } from "@/lib/admin-data";
-import { getElectives, getLessonMetas, getPhases } from "@/lib/content";
+import { getAllPhases, getElectives, getLessonMetas } from "@/lib/content";
 
 export const metadata: Metadata = { title: "Admin", robots: { index: false } };
 
@@ -13,7 +13,12 @@ export default async function AdminPage() {
   const [overview, activity, learners] = await Promise.all([getOverview(), getLessonActivity(), getSectionLearners()]);
 
   const sections = [
-    ...getPhases().map((p) => ({ slug: p.slug, label: `Phase ${p.number}`, title: p.title, href: `/learn/${p.slug}` })),
+    ...getAllPhases().map(({ course, phase: p }) => ({
+      slug: p.slug,
+      label: course.slug === "pypath" ? `Phase ${p.number}` : `${course.shortTitle} ${p.number}`,
+      title: p.title,
+      href: `${course.href}/${p.slug}`,
+    })),
     ...getElectives().map((e) => ({ slug: e.slug, label: `Elective ${e.code}`, title: e.title, href: `/electives/${e.slug}` })),
   ].map((s) => {
     const lessons = getLessonMetas(s.slug);
@@ -22,7 +27,7 @@ export default async function AdminPage() {
   });
 
   const titles = new Map(
-    [...getPhases(), ...getElectives()].flatMap((s) => getLessonMetas(s.slug).map((l) => [l.key, l.title] as const)),
+    [...getAllPhases().map((p) => p.phase), ...getElectives()].flatMap((s) => getLessonMetas(s.slug).map((l) => [l.key, l.title] as const)),
   );
   const topLessons = [...activity.entries()]
     .filter(([key]) => titles.has(key))

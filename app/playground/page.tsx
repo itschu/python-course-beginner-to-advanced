@@ -5,7 +5,8 @@ import { Playground } from "./playground";
 
 export const metadata: Metadata = {
   title: "Playground",
-  description: "Write and run Python in your browser (with pandas, scikit-learn and a MicroPython simulator) or Rust on the Rust Playground.",
+  description:
+    "Write and run Python in your browser (with pandas, scikit-learn and a MicroPython simulator), Rust on the Rust Playground, or React Native apps in a phone simulator.",
 };
 
 export default function PlaygroundPage() {
@@ -14,7 +15,7 @@ export default function PlaygroundPage() {
       <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">Playground</h1>
       <p className="mt-2 mb-6 max-w-3xl text-zinc-600 dark:text-zinc-400">
         A scratchpad for experiments. Everything runs in your browser with real Python, so nothing you do here can break
-        anything. Switch to Rust to compile and run Rust programs.
+        anything. Switch to Rust to compile and run Rust programs, or to React Native to build an app on a simulated phone.
       </p>
       <Playground datasets={datasets} />
     </div>

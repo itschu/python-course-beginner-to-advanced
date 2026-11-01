@@ -57,6 +57,7 @@ STARTER_SECONDS = 5
 RUST_EDITION = "2024"
 RUST_RUN_SECONDS = 20
 LANGUAGES = {"python", "rust"}
+OTHER_COURSES = "mobile"
 
 
 @dataclass
@@ -479,7 +480,8 @@ def main() -> int:
     args = parser.parse_args()
 
     slugs = phase_slugs()
-    unknown_dirs = {p.name for p in CONTENT.iterdir() if p.is_dir()} - set(slugs)
+    # content/mobile/ is the mobile course, checked by scripts/validate_mobile.mjs.
+    unknown_dirs = {p.name for p in CONTENT.iterdir() if p.is_dir()} - set(slugs) - {OTHER_COURSES}
     errors: list[str] = []
     if unknown_dirs:
         errors.append(f"content folders not listed in curriculum.ts: {sorted(unknown_dirs)}")

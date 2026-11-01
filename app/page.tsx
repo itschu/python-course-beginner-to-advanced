@@ -1,9 +1,10 @@
-import { ArrowRight, Code2, Cpu, FlaskConical, Hammer, Rocket } from "lucide-react";
+import { ArrowRight, Code2, Cpu, FlaskConical, Hammer, Rocket, Smartphone } from "lucide-react";
 import Link from "next/link";
 
 import { ContinueCard } from "@/components/continue-card";
 import { ElectiveCard } from "@/components/electives/elective-card";
 import { CompletionBar } from "@/components/lesson/lesson-status";
+import { mobileCourse } from "@/content/courses";
 import { getAllLessonMetas, getCourseStats, getElectivesAfter, getLessonMetas, getPhases } from "@/lib/content";
 
 const STEPS = [
@@ -32,6 +33,7 @@ const STEPS = [
 export default function HomePage() {
   const phases = getPhases();
   const stats = getCourseStats();
+  const mobileStats = getCourseStats(mobileCourse);
   const all = getAllLessonMetas();
   const firstLesson = all[0];
   const courseLessons = all.map((l) => ({
@@ -93,6 +95,29 @@ export default function HomePage() {
             ))}
           </dl>
         </div>
+      </section>
+
+      <section className="mx-auto max-w-5xl px-4 pt-12">
+        <Link
+          href={mobileCourse.href}
+          className="card flex flex-col gap-5 border-violet-200 bg-gradient-to-br from-violet-50 to-white p-6 transition hover:border-violet-400 sm:flex-row sm:items-center dark:border-violet-900 dark:from-violet-950/40 dark:to-zinc-900 dark:hover:border-violet-600"
+        >
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-violet-600 text-white">
+            <Smartphone className="size-6" aria-hidden />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="text-xs font-semibold tracking-wide text-violet-700 uppercase dark:text-violet-300">
+              New course · {mobileStats.phases} phases
+            </span>
+            <span className="mt-1 block text-lg font-semibold text-zinc-900 dark:text-white">{mobileCourse.title}</span>
+            <span className="mt-1 block text-sm text-zinc-600 dark:text-zinc-400">
+              {mobileCourse.tagline} Code runs on a phone simulator in your browser, then on your own phone with Expo Go.
+            </span>
+          </span>
+          <span className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-violet-700 dark:text-violet-300">
+            See the course <ArrowRight className="size-4" aria-hidden />
+          </span>
+        </Link>
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-16">

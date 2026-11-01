@@ -8,7 +8,8 @@ import { useState, type ReactNode } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 const NAV = [
-  { href: "/learn", label: "Course" },
+  { href: "/learn", label: "Python & Rust" },
+  { href: "/mobile", label: "Mobile apps" },
   { href: "/playground", label: "Playground" },
   { href: "/resources", label: "Resources" },
   { href: "/progress", label: "My progress" },
