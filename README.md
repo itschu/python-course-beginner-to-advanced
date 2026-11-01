@@ -1,9 +1,10 @@
-# PyPath: Python, Rust, Machine Learning and Embedded Systems
+# PyPath: Python, Rust, Machine Learning, Embedded Systems and Mobile Apps
 
-A Next.js site that teaches Python and Rust from zero to advanced, machine learning from first principles to
+A Next.js site with two courses. The main course teaches Python and Rust from zero to advanced, machine learning from first principles to
 deployed models, and embedded systems, ending with your own models running inside microcontroller firmware. Every
 lesson has runnable code, exercises checked by automatic tests, and quizzes. Each phase ends with a project and a
-checkpoint test.
+checkpoint test. The second course, [Mobile Apps with React Native](#the-mobile-course), teaches iOS and Android
+development with React Native, Expo and TypeScript.
 
 Nothing needs installing to follow along:
 
@@ -69,6 +70,39 @@ preview (the lesson list and summaries); signed-in learners choose to take an el
 Resources for every phase (courses, books, videos, docs, tools) are listed on the site's
 **Resources** page and in [`content/curriculum.ts`](content/curriculum.ts).
 
+## The mobile course
+
+A second, separate course at `/mobile`: **Mobile Apps with React Native**, building iOS and Android apps with
+React Native, Expo and TypeScript. It has its own roadmap, lessons and resources, and doesn't count towards the main
+course (the progress page shows each course separately). Learners need some programming experience in any language;
+lesson 2 teaches the TypeScript they need.
+
+| Phase | Topic | Lessons | Exercises |
+| --- | --- | --- | --- |
+| 1 | React Native Foundations (TypeScript, components, props, Flexbox, state, input, lists) | 10 | 36 |
+| 2 | Screens and Navigation (Expo on your phone, Expo Router, stacks, tabs, params) | coming soon | |
+| 3 | Effects, Data and Networking (useEffect, fetch, custom hooks, TanStack Query) | coming soon | |
+| 4 | State Management and Storage (reducers, context, Zustand, SQLite, offline-first) | coming soon | |
+| 5 | Device Features and Native APIs (camera, location, notifications, permissions) | coming soon | |
+| 6 | Polished UI (theming, Reanimated, gestures, accessibility) | coming soon | |
+| 7 | Testing, Performance and Debugging (Jest, Maestro, profiling, crash reporting) | coming soon | |
+| 8 | Backends, Auth and Shipping (sign-in, EAS Build, the stores, OTA updates, capstone) | coming soon | |
+
+Phase 1 ends with a habit tracker project and a checkpoint test. Its code runs in a **React Native simulator** in the
+browser ([`lib/mobile/rn-runtime.mjs`](lib/mobile/rn-runtime.mjs)): a compact React-compatible renderer (function
+components and hooks) with React Native's core components (`View`, `Text`, `Pressable`, `TextInput`, `FlatList`,
+`ScrollView`, `Switch`, `Image`, `StyleSheet`, `Alert`, …). TypeScript is compiled with
+[Sucrase](https://github.com/alangpierce/sucrase) (types are stripped, not checked), the app runs in a Web Worker, and
+the page draws it as a phone with React Native's layout defaults. Taps, typing and switches on the phone go back to the
+app. Exercises are graded with a subset of **Jest** and **React Native Testing Library** (`render`, `screen`,
+`fireEvent`, `waitFor`, `jest.fn`, fake timers and the common matchers), so tests read exactly like a real Expo
+project's. Every example with an `export default` also has a **Snack** button that opens it in
+[Expo Snack](https://snack.expo.dev/), to run on a real phone with Expo Go.
+
+The simulator doesn't type-check, doesn't support class components or native modules (camera, location…), and renders
+every list item instead of virtualising. Lessons that need more mark their code `tsx static` and point to Snack or a
+local Expo project. The Playground has a React Native mode too.
+
 ## Run it locally
 
 Requires Node.js 20.9+.
@@ -82,7 +116,7 @@ Open http://localhost:3000. Progress is saved in your browser; see below to add 
 
 ## Checking the content
 
-Every code example and exercise is executed by a validator that uses the same grading harness as the
+`npm run validate` checks both courses. Every code example and exercise is executed by a validator that uses the same grading harness as the
 browser. For each exercise, the solution must pass all tests and the starter code must fail at least
 one. Code that prints a warning (including deprecation warnings) also fails, because learners would see it.
 
@@ -107,6 +141,17 @@ WebAssembly, download the full Pyodide release matching `public/pyodide-worker.j
 PYODIDE_DIR=/path/to/pyodide node scripts/check_pyodide.mjs jobs.json
 ```
 
+The mobile course is checked by `scripts/validate_mobile.mjs` (`npm run validate:mobile`), which runs every `tsx`
+cell and exercise in the same simulator the browser uses: cells must run without errors or warnings, and each
+exercise's solution must pass while its starter fails. It imports `lib/lesson-parser.ts` directly, so it needs
+Node.js 22.18 or newer (for built-in TypeScript type stripping). `npm run test:rn` runs the simulator's own tests.
+
+```bash
+npm run validate:mobile
+npm run validate:mobile -- --phase rn-foundations -k lists
+npm run test:rn
+```
+
 The datasets in `public/data/` are synthetic and reproducible: `npm run data` runs
 `scripts/generate_datasets.py` and then `scripts/generate_model_predictions.py` (the Phase 6 goal-model
 predictions, which depend on `matches.csv`).
@@ -114,11 +159,15 @@ predictions, which depend on `matches.csv`).
 ## Project structure
 
 ```text
-app/                    Next.js routes (home, course, lessons, electives, playground, resources, progress)
+app/                    Next.js routes (home, /learn and /mobile courses, lessons, electives, playground, resources, progress)
+components/course/      Course roadmap, phase and lesson pages shared by both courses
+components/mobile/      Phone preview for the React Native simulator
 components/python/      Code editor, runnable cells, exercises, output panel
 components/lesson/      Lesson renderer, quizzes, completion
 components/progress/    Progress store (browser storage, synced to the database when signed in)
-content/                Lessons (Markdown) and curriculum.ts (phases and resources)
+content/                Lessons (Markdown) and curriculum.ts (phases and resources); courses.ts lists the courses
+content/mobile/         The mobile course: curriculum.ts and its lessons
+lib/mobile/             React Native simulator (rn-runtime.mjs), its Web Worker and client, Expo Snack links
 lib/                    Lesson parser, Markdown rendering, Python runner client, progress model
 public/pyodide-worker.js   Web worker that runs Python
 public/pyodide-harness.py  Grading harness (runs code, captures output and charts, runs tests)
@@ -128,7 +177,7 @@ lib/rust-runner.ts      Runs Rust on the Rust Playground and grades exercises wi
 public/data/            Datasets lessons can open as "data/<file>"
 notebooks/              Colab notebooks for the PyTorch lessons (built from notebooks/src/)
 backend/                Companion FastAPI project for Phase 8 (its own README, tests and Dockerfile)
-scripts/                Content validator, dataset generators, notebook builder
+scripts/                Content validators (Python/Rust and mobile), simulator tests, dataset generators, notebook builder
 ```
 
 Lesson format: see [`content/README.md`](content/README.md).

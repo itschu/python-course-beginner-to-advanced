@@ -8,12 +8,15 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
-    "validate": "python3 scripts/validate_content.py",
+    "validate": "python3 scripts/validate_content.py && npm run validate:mobile",
+    "test:rn": "node scripts/test_rn_runtime.mjs",
+    "validate:mobile": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --disable-warning=ExperimentalWarning scripts/validate_mobile.mjs",
     "data": "python3 scripts/generate_datasets.py && python3 scripts/generate_model_predictions.py",
     "db:migrate": "node scripts/migrate.mjs",
     "notebooks": "python3 scripts/build_notebooks.py"
   },
   "dependencies": {
+    "@codemirror/lang-javascript": "6.2.5",
     "@codemirror/lang-python": "6.2.1",
     "@codemirror/lang-rust": "6.0.2",
     "@codemirror/language": "6.13.1",
@@ -36,6 +39,7 @@
     "remark-rehype": "11.1.2",
     "server-only": "0.0.1",
     "shiki": "4.5.0",
+    "sucrase": "3.35.1",
     "unified": "11.0.5",
     "unist-util-visit": "5.1.0"
   },

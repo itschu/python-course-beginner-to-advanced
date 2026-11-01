@@ -12,7 +12,17 @@ interface PhaseSummary {
   slug: string;
   number: number;
   title: string;
+  href: string;
   lessons: LessonMeta[];
+}
+
+interface CourseSummary {
+  slug: string;
+  title: string;
+  href: string;
+  /** Tailwind background class for the phase badges. */
+  accent: string;
+  phases: PhaseSummary[];
 }
 
 interface ElectiveSummary {
@@ -23,11 +33,11 @@ interface ElectiveSummary {
 }
 
 export function ProgressDashboard({
-  phases,
+  courses,
   electives = [],
   account,
 }: {
-  phases: PhaseSummary[];
+  courses: CourseSummary[];
   electives?: ElectiveSummary[];
   account?: ReactNode;
 }) {
@@ -36,9 +46,15 @@ export function ProgressDashboard({
   const [message, setMessage] = useState<string | null>(null);
   const { data } = progress;
 
-  const all = phases.flatMap((p) => p.lessons);
+  // Totals cover the courses you've started (or the first course, before you start any).
+  const started = courses.filter((c) => c.phases.some((p) => p.lessons.some((l) => data[l.key])));
+  const counted = started.length > 0 ? started : courses.slice(0, 1);
+  const all = counted.flatMap((c) => c.phases.flatMap((p) => p.lessons));
   const totalExercises = all.reduce((n, l) => n + l.exerciseIds.length, 0);
-  const passedExercises = all.reduce((n, l) => n + l.exerciseIds.filter((id) => data[l.key]?.exercises[id]?.passed).length, 0);
+  const passedExercises = all.reduce(
+    (n, l) => n + l.exerciseIds.filter((id) => data[l.key]?.exercises[id]?.passed).length,
+    0,
+  );
   const completedLessons = all.filter((l) => data[l.key]?.completed).length;
   const quizzes = all.flatMap((l) => l.quizIds.map((id) => data[l.key]?.quizzes[id]).filter(Boolean));
   const quizPercent = quizzes.length
@@ -71,43 +87,78 @@ export function ProgressDashboard({
 
   return (
     <div className="space-y-8">
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Stat label="Lessons completed" value={`${completedLessons}/${all.length}`} percent={(completedLessons / Math.max(1, all.length)) * 100} />
-        <Stat label="Exercises passed" value={`${passedExercises}/${totalExercises}`} percent={(passedExercises / Math.max(1, totalExercises)) * 100} />
-        <Stat label="Average best quiz score" value={quizzes.length ? `${quizPercent}%` : "–"} percent={quizPercent} />
+      <div>
+        {courses.length > 1 && (
+          <p className="mb-3 text-sm text-zinc-500">Totals for {counted.map((c) => c.title).join(" and ")}.</p>
+        )}
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Stat
+            label="Lessons completed"
+            value={`${completedLessons}/${all.length}`}
+            percent={(completedLessons / Math.max(1, all.length)) * 100}
+          />
+          <Stat
+            label="Exercises passed"
+            value={`${passedExercises}/${totalExercises}`}
+            percent={(passedExercises / Math.max(1, totalExercises)) * 100}
+          />
+          <Stat
+            label="Average best quiz score"
+            value={quizzes.length ? `${quizPercent}%` : "–"}
+            percent={quizPercent}
+          />
+        </div>
       </div>
 
       {account}
 
-      <div className="card divide-y divide-zinc-100 dark:divide-zinc-800">
-        {phases.map((phase) => {
-          const done = phase.lessons.filter((l) => data[l.key]?.completed).length;
-          const exTotal = phase.lessons.reduce((n, l) => n + l.exerciseIds.length, 0);
-          const exDone = phase.lessons.reduce((n, l) => n + l.exerciseIds.filter((id) => data[l.key]?.exercises[id]?.passed).length, 0);
-          const checkpoint = phase.lessons.find((l) => l.kind === "checkpoint");
-          const checkpointScores = checkpoint ? checkpoint.quizIds.map((id) => data[checkpoint.key]?.quizzes[id]).filter(Boolean) : [];
-          return (
-            <div key={phase.slug} className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-blue-600 font-bold text-white">
-                {phase.number}
-              </span>
-              <div className="min-w-0 flex-1">
-                <Link href={`/learn/${phase.slug}`} className="font-medium text-zinc-900 hover:underline dark:text-zinc-100">
-                  {phase.title}
-                </Link>
-                <div className="mt-0.5 text-xs text-zinc-500">
-                  {done}/{phase.lessons.length} lessons · {exDone}/{exTotal} exercises
-                  {checkpointScores.length > 0 &&
-                    ` · checkpoint quiz best ${checkpointScores.map((q) => `${q!.best}/${q!.total}`).join(", ")}`}
+      {courses.map((course) => (
+        <div key={course.slug}>
+          {courses.length > 1 && (
+            <h2 className="mb-3 text-lg font-semibold text-zinc-900 dark:text-white">
+              <Link href={course.href} className="hover:underline">
+                {course.title}
+              </Link>
+            </h2>
+          )}
+          <div className="card divide-y divide-zinc-100 dark:divide-zinc-800">
+            {course.phases.map((phase) => {
+              const done = phase.lessons.filter((l) => data[l.key]?.completed).length;
+              const exTotal = phase.lessons.reduce((n, l) => n + l.exerciseIds.length, 0);
+              const exDone = phase.lessons.reduce(
+                (n, l) => n + l.exerciseIds.filter((id) => data[l.key]?.exercises[id]?.passed).length,
+                0,
+              );
+              const checkpoint = phase.lessons.find((l) => l.kind === "checkpoint");
+              const checkpointScores = checkpoint
+                ? checkpoint.quizIds.map((id) => data[checkpoint.key]?.quizzes[id]).filter(Boolean)
+                : [];
+              return (
+                <div key={phase.slug} className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center">
+                  <span
+                    className={`flex size-9 shrink-0 items-center justify-center rounded-lg font-bold text-white ${course.accent}`}
+                  >
+                    {phase.number}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <Link href={phase.href} className="font-medium text-zinc-900 hover:underline dark:text-zinc-100">
+                      {phase.title}
+                    </Link>
+                    <div className="mt-0.5 text-xs text-zinc-500">
+                      {done}/{phase.lessons.length} lessons · {exDone}/{exTotal} exercises
+                      {checkpointScores.length > 0 &&
+                        ` · checkpoint quiz best ${checkpointScores.map((q) => `${q!.best}/${q!.total}`).join(", ")}`}
+                    </div>
+                  </div>
+                  <div className="w-full sm:w-48">
+                    <ProgressBar percent={phase.lessons.length ? (done / phase.lessons.length) * 100 : 0} />
+                  </div>
                 </div>
-              </div>
-              <div className="w-full sm:w-48">
-                <ProgressBar percent={phase.lessons.length ? (done / phase.lessons.length) * 100 : 0} />
-              </div>
-            </div>
-          );
-        })}
-      </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
 
       {startedElectives.length > 0 && (
         <div>
@@ -121,7 +172,10 @@ export function ProgressDashboard({
                     {elective.code}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <Link href={`/electives/${elective.slug}`} className="font-medium text-zinc-900 hover:underline dark:text-zinc-100">
+                    <Link
+                      href={`/electives/${elective.slug}`}
+                      className="font-medium text-zinc-900 hover:underline dark:text-zinc-100"
+                    >
                       {elective.title}
                     </Link>
                     <div className="mt-0.5 text-xs text-zinc-500">

@@ -95,3 +95,11 @@ pre.shiki {
 .dark .cm-editor .cm-gutters {
   @apply border-zinc-800 bg-zinc-900;
 }
+
+/* React Native phone preview (components/mobile/phone-preview.tsx) */
+.rn-input::placeholder {
+  color: var(--ph, #c7c7cd);
+}
+.rn-scroll {
+  scrollbar-width: thin;
+}

@@ -8,7 +8,7 @@ import { DeleteUserButton, ElectiveToggle } from "@/components/admin/user-action
 import { ProgressBar } from "@/components/lesson/lesson-status";
 import { requireAdminPage } from "@/lib/admin";
 import { getUser } from "@/lib/admin-data";
-import { getElectives, getLessonMetas, getPhases } from "@/lib/content";
+import { getAllPhases, getElectives, getLessonMetas } from "@/lib/content";
 
 export const metadata: Metadata = { title: "Learner · Admin", robots: { index: false } };
 
@@ -20,14 +20,18 @@ export default async function AdminUserPage({ params }: PageProps<"/admin/users/
 
   const progress = new Map(user.lessons.map((l) => [l.key, l]));
   const sections = [
-    ...getPhases().map((p) => ({ slug: p.slug, label: `Phase ${p.number}`, title: p.title })),
+    ...getAllPhases().map(({ course, phase: p }) => ({
+      slug: p.slug,
+      label: course.slug === "pypath" ? `Phase ${p.number}` : `${course.shortTitle} ${p.number}`,
+      title: p.title,
+    })),
     ...getElectives().map((e) => ({ slug: e.slug, label: `Elective ${e.code}`, title: e.title })),
   ].map((s) => {
     const lessons = getLessonMetas(s.slug);
     return { ...s, total: lessons.length, done: lessons.filter((l) => progress.get(l.key)?.completed).length };
   });
   const titles = new Map(
-    [...getPhases(), ...getElectives()].flatMap((s) => getLessonMetas(s.slug).map((l) => [l.key, l.title] as const)),
+    [...getAllPhases().map((p) => p.phase), ...getElectives()].flatMap((s) => getLessonMetas(s.slug).map((l) => [l.key, l.title] as const)),
   );
   const enrolled = new Set(user.electives.map((e) => e.slug));
   const completed = user.lessons.filter((l) => l.completed).length;

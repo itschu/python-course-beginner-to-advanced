@@ -32,8 +32,8 @@ const processor = unified()
   .use(rehypeKatex)
   .use(rehypeShiki, {
     themes: { light: "github-light", dark: "github-dark" },
-    langs: ["python", "rust", "c", "bash", "json", "yaml", "sql", "dockerfile", "toml", "ini", "html", "typescript", "asm"],
-    langAlias: { py: "python", rs: "rust", sh: "bash", shell: "bash", console: "bash", env: "ini" },
+    langs: ["python", "rust", "c", "bash", "json", "yaml", "sql", "dockerfile", "toml", "ini", "html", "typescript", "tsx", "javascript", "jsx", "asm"],
+    langAlias: { py: "python", rs: "rust", sh: "bash", shell: "bash", console: "bash", env: "ini", ts: "typescript", js: "javascript" },
     defaultLanguage: "text",
     fallbackLanguage: "text",
   })

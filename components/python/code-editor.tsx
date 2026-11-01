@@ -1,5 +1,6 @@
 "use client";
 
+import { javascript } from "@codemirror/lang-javascript";
 import { python } from "@codemirror/lang-python";
 import { rust } from "@codemirror/lang-rust";
 import { indentUnit } from "@codemirror/language";
@@ -41,12 +42,12 @@ export default function CodeEditor({
 
   const extensions = useMemo(
     () => [
-      language === "rust" ? rust() : python(),
-      indentUnit.of("    "),
+      language === "rust" ? rust() : language === "tsx" ? javascript({ jsx: true, typescript: true }) : python(),
+      indentUnit.of(language === "tsx" ? "  " : "    "),
       baseTheme,
       EditorView.lineWrapping,
       EditorView.contentAttributes.of({
-        "aria-label": ariaLabel ?? `${language === "rust" ? "Rust" : "Python"} code editor`,
+        "aria-label": ariaLabel ?? `${language === "rust" ? "Rust" : language === "tsx" ? "TypeScript" : "Python"} code editor`,
       }),
     ],
     [ariaLabel, language],
@@ -78,7 +79,7 @@ export default function CodeEditor({
           highlightActiveLine: true,
           highlightActiveLineGutter: true,
           autocompletion: true,
-          tabSize: 4,
+          tabSize: language === "tsx" ? 2 : 4,
         }}
         indentWithTab
       />

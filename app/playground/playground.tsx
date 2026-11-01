@@ -3,7 +3,7 @@
 import { RotateCcw } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { RunButton } from "@/components/python/code-cell";
+import { RunButton, SnackLink } from "@/components/python/code-cell";
 import Editor from "@/components/python/editor";
 import { OutputPanel } from "@/components/python/output-panel";
 import { RunnerStatus } from "@/components/python/runner-status";
@@ -11,7 +11,92 @@ import { useCodeRun } from "@/components/python/use-code-run";
 import type { Dataset } from "@/lib/datasets";
 import type { CodeLanguage } from "@/lib/types";
 
-const STORAGE_KEYS: Record<CodeLanguage, string> = { python: "pypath-playground", rust: "pypath-playground-rust" };
+const STORAGE_KEYS: Record<CodeLanguage, string> = {
+  python: "pypath-playground",
+  rust: "pypath-playground-rust",
+  tsx: "pypath-playground-react-native",
+};
+const LANGUAGE_LABELS: Record<CodeLanguage, string> = { python: "Python", rust: "Rust", tsx: "React Native" };
+
+export const RN_EXAMPLES: { title: string; code: string }[] = [
+  {
+    title: "A counter",
+    code: `import { useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+
+export default function App() {
+  const [count, setCount] = useState(0);
+  return (
+    <View style={styles.screen}>
+      <Text style={styles.count}>{count}</Text>
+      <Pressable style={styles.button} onPress={() => setCount(count + 1)}>
+        <Text style={styles.label}>Tap me</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, alignItems: "center", justifyContent: "center", gap: 16 },
+  count: { fontSize: 64, fontWeight: "700" },
+  button: { backgroundColor: "#7c3aed", paddingVertical: 12, paddingHorizontal: 24, borderRadius: 12 },
+  label: { color: "white", fontSize: 18, fontWeight: "600" },
+});
+`,
+  },
+  {
+    title: "A to-do list",
+    code: `import { useState } from "react";
+import { Button, FlatList, StyleSheet, Text, TextInput, View } from "react-native";
+
+type Todo = { id: string; title: string; done: boolean };
+
+export default function App() {
+  const [text, setText] = useState("");
+  const [todos, setTodos] = useState<Todo[]>([]);
+
+  const add = () => {
+    if (!text.trim()) return;
+    setTodos([...todos, { id: String(Date.now()), title: text.trim(), done: false }]);
+    setText("");
+  };
+  const toggle = (id: string) => setTodos(todos.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));
+
+  return (
+    <View style={styles.screen}>
+      <Text style={styles.title}>To do</Text>
+      <View style={styles.row}>
+        <TextInput style={styles.input} placeholder="Add a task" value={text} onChangeText={setText} onSubmitEditing={add} />
+        <Button title="Add" onPress={add} />
+      </View>
+      <FlatList
+        data={todos}
+        keyExtractor={(t) => t.id}
+        renderItem={({ item }) => (
+          <Text style={[styles.item, item.done && styles.done]} onPress={() => toggle(item.id)}>
+            {item.title}
+          </Text>
+        )}
+        ListEmptyComponent={<Text style={styles.empty}>Nothing to do. Add a task above.</Text>}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, padding: 16 },
+  title: { fontSize: 28, fontWeight: "700", marginBottom: 12 },
+  row: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 12 },
+  input: { flex: 1, borderWidth: 1, borderColor: "#d4d4d8", borderRadius: 8, padding: 10, fontSize: 16 },
+  item: { fontSize: 18, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: "#eee" },
+  done: { textDecorationLine: "line-through", color: "#a1a1aa" },
+  empty: { color: "#71717a", textAlign: "center", marginTop: 24 },
+});
+`,
+  },
+];
+
+const EXAMPLES_FOR = (lang: CodeLanguage) => (lang === "rust" ? RUST_EXAMPLES : lang === "tsx" ? RN_EXAMPLES : EXAMPLES);
 const LANGUAGE_KEY = "pypath-playground-language";
 
 export const RUST_EXAMPLES: { title: string; code: string }[] = [
@@ -166,7 +251,7 @@ export function Playground({ datasets }: { datasets: Dataset[] }) {
   const [language, setLanguage] = useState<CodeLanguage>("python");
   const [code, setCode] = useState(EXAMPLES[0].code);
   const run = useCodeRun(language);
-  const examples = language === "rust" ? RUST_EXAMPLES : EXAMPLES;
+  const examples = EXAMPLES_FOR(language);
 
   const load = (lang: CodeLanguage) => {
     let saved: string | null = null;
@@ -176,13 +261,14 @@ export function Playground({ datasets }: { datasets: Dataset[] }) {
       // ignore
     }
     setLanguage(lang);
-    setCode(saved ?? (lang === "rust" ? RUST_EXAMPLES : EXAMPLES)[0].code);
+    setCode(saved ?? EXAMPLES_FOR(lang)[0].code);
   };
 
   useEffect(() => {
     let lang: CodeLanguage = "python";
     try {
-      if (localStorage.getItem(LANGUAGE_KEY) === "rust") lang = "rust";
+      const stored = localStorage.getItem(LANGUAGE_KEY);
+      if (stored === "rust" || stored === "tsx") lang = stored;
     } catch {
       // ignore
     }
@@ -221,7 +307,7 @@ export function Playground({ datasets }: { datasets: Dataset[] }) {
         <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
           <div className="flex flex-wrap items-center gap-2 border-b border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900/80">
             <div className="flex rounded-lg border border-zinc-200 p-0.5 text-xs dark:border-zinc-700" role="group" aria-label="Language">
-              {(["python", "rust"] as const).map((lang) => (
+              {(["python", "rust", "tsx"] as const).map((lang) => (
                 <button
                   key={lang}
                   type="button"
@@ -233,7 +319,7 @@ export function Playground({ datasets }: { datasets: Dataset[] }) {
                       : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
                   }`}
                 >
-                  {lang === "python" ? "Python" : "Rust"}
+                  {LANGUAGE_LABELS[lang]}
                 </button>
               ))}
             </div>
@@ -265,8 +351,11 @@ export function Playground({ datasets }: { datasets: Dataset[] }) {
               {language === "python" ? (
                 <RunnerStatus />
               ) : (
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">Runs on the Rust Playground</span>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                  {language === "rust" ? "Runs on the Rust Playground" : "Runs in a phone simulator"}
+                </span>
               )}
+              {language === "tsx" && <SnackLink code={code} />}
               <button type="button" className="btn btn-sm btn-ghost" onClick={() => change("")}>
                 <RotateCcw className="size-3.5" aria-hidden /> Clear
               </button>
@@ -279,6 +368,8 @@ export function Playground({ datasets }: { datasets: Dataset[] }) {
             runnerStatus={run.runner.status}
             runnerMessage={run.runner.message}
             emptyHint="Press Run (or Ctrl/⌘ + Enter) to execute your code. Your code is saved in this browser."
+            language={language}
+            onPreviewEvent={run.dispatch}
           />
         </div>
       </div>
@@ -310,6 +401,12 @@ export function Playground({ datasets }: { datasets: Dataset[] }) {
               Rust Playground
             </a>{" "}
             (stable channel, edition 2024), so you need to be online. Write a <code className="font-mono">fn main()</code>.
+          </p>
+          <h2 className="mt-3 text-sm font-semibold text-zinc-900 dark:text-white">React Native</h2>
+          <p className="mt-1">
+            TypeScript and JSX run in a phone simulator in your browser: <code className="font-mono">export default</code>{" "}
+            a component to see it. It covers React&apos;s hooks and React Native&apos;s core components. Press Snack to run
+            the same code on your phone with Expo Go.
           </p>
           <h2 className="mt-3 text-sm font-semibold text-zinc-900 dark:text-white">MicroPython simulator</h2>
           <p className="mt-1">

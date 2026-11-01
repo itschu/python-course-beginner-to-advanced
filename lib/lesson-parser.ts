@@ -3,8 +3,8 @@
  *
  * A lesson is Markdown with a few extra block types:
  *
- *   ```python | ```rust  -> runnable, editable code cell
- *   ```python static     -> highlighted, not runnable (also ```rust static)
+ *   ```python | ```rust | ```tsx -> runnable, editable code cell (tsx: React Native)
+ *   ```python static     -> highlighted, not runnable (also ```rust static, ```tsx static)
  *   :::exercise <id> <title>  ... @@starter / @@solution / @@tests / @@hint ... :::
  *   :::quiz <id> <title> ... ? question / - [ ] option / - [x] correct / > explanation ... :::
  *   :::note|tip|warning|info|colab <title> ... :::
@@ -22,7 +22,7 @@ export interface RawQuizQuestion {
 
 export type RawBlock =
   | { kind: "md"; text: string }
-  | { kind: "code"; language: "python" | "rust"; code: string; meta: string[] }
+  | { kind: "code"; language: "python" | "rust" | "tsx"; code: string; meta: string[] }
   | {
       kind: "exercise";
       id: string;
@@ -86,7 +86,8 @@ export function parseLessonBody(source: string, file = "lesson"): RawBlock[] {
       if (j >= lines.length) {
         throw new LessonParseError(`${file}: unclosed code fence starting on line ${i + 1}`);
       }
-      const language = lang === "python" || lang === "py" ? "python" : lang === "rust" || lang === "rs" ? "rust" : null;
+      const language =
+        lang === "python" || lang === "py" ? "python" : lang === "rust" || lang === "rs" ? "rust" : lang === "tsx" ? "tsx" : null;
       if (language) {
         flushMd();
         blocks.push({

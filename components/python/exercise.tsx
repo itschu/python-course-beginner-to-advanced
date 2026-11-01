@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { useProgress } from "@/components/progress/progress-provider";
 import type { CodeLanguage } from "@/lib/types";
-import { RunButton } from "./code-cell";
+import { RunButton, SnackLink } from "./code-cell";
 import Editor from "./editor";
 import { OutputPanel } from "./output-panel";
 import { useCodeRun } from "./use-code-run";
@@ -139,7 +139,17 @@ export function Exercise(props: ExerciseProps) {
         <button type="button" className="btn btn-sm btn-ghost" onClick={() => setShowTests((v) => !v)}>
           {showTests ? "Hide tests" : "View tests"}
         </button>
-        <button type="button" className="btn btn-sm btn-ghost ml-auto" onClick={reset} title="Start again from the starter code">
+        {props.language === "tsx" && (
+          <span className="ml-auto">
+            <SnackLink code={code} />
+          </span>
+        )}
+        <button
+          type="button"
+          className={`btn btn-sm btn-ghost ${props.language === "tsx" ? "" : "ml-auto"}`}
+          onClick={reset}
+          title="Start again from the starter code"
+        >
           <RotateCcw className="size-3.5" aria-hidden /> Reset
         </button>
       </div>
@@ -149,6 +159,8 @@ export function Exercise(props: ExerciseProps) {
         runnerStatus={run.runner.status}
         runnerMessage={run.runner.message}
         emptyHint="Write your code, then press “Check my code” to run the tests."
+        language={props.language}
+        onPreviewEvent={run.dispatch}
       />
 
       {justPassed && (
@@ -176,6 +188,12 @@ export function Exercise(props: ExerciseProps) {
                 These tests are compiled with your code inside a <code>mod tests</code> and run with{" "}
                 <code>cargo test</code>. Each <code>#[test]</code> function checks one thing. Reading tests is a
                 professional skill too.
+              </>
+            ) : props.language === "tsx" ? (
+              <>
+                These tests run after your code, with Jest&apos;s <code>test</code> and <code>expect</code> and React
+                Native Testing Library&apos;s <code>render</code>, <code>screen</code> and <code>fireEvent</code>, as in
+                a real Expo project. Each <code>test</code> checks one thing.
               </>
             ) : (
               <>

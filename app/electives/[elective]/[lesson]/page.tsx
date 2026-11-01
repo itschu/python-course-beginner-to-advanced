@@ -5,6 +5,7 @@ import { ElectiveLockedPanel } from "@/components/electives/elective-access-pane
 import { LessonView } from "@/components/lesson/lesson-view";
 import { getAdjacentLessons, getElective, getLesson, getLessonMetas } from "@/lib/content";
 import { electiveAccess, isUnlocked } from "@/lib/electives";
+import { mainCourse } from "@/content/courses";
 
 export async function generateMetadata({ params }: PageProps<"/electives/[elective]/[lesson]">): Promise<Metadata> {
   const { elective, lesson } = await params;
@@ -27,7 +28,7 @@ export default async function ElectiveLessonPage({ params }: PageProps<"/electiv
 
   return (
     <LessonView
-      section={{ label: `Elective ${elective.code}`, title: elective.title, href, number: elective.code }}
+      section={{ label: `Elective ${elective.code}`, title: elective.title, href, number: elective.code, course: { shortTitle: mainCourse.shortTitle, href: mainCourse.href } }}
       lesson={lesson ?? meta}
       siblings={siblings}
       prev={prev}
